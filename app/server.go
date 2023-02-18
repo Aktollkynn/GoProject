@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"github.com/Aktollkynn/GoProject.git/database/seeders"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"log"
@@ -31,11 +32,23 @@ type DBConfig struct {
 	DBPort     string
 }
 
-func (server *Server) Initialize(appConfig AppConfig, dbconfig DBConfig) {
+func (server *Server) Initialize(appConfig AppConfig, dbConfig DBConfig) {
 	fmt.Println("Welcome to " + appConfig.AppName)
 
-	server.initializeDB(dbconfig)
+	//dsn := fmt.Sprintf("host=localhost user=postgres password=password dbname=dbname port=5432 sslmode=disable  TimeZone=Asia/Almaty")
+	//server.DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+
+	//var err error
+	//dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Almaty", dbConfig.DBHost, dbConfig.DBUser, dbConfig.DBPassword, dbConfig.DBName, dbConfig.DBPort)
+	//server.DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	////fmt.Println(server.DB)
+	//
+	//if err != nil {
+	//  panic("Failed on connecting to the database server")
+	//}
+	server.initializeDB(dbConfig)
 	server.InitializeRoutes()
+	seeders.DBSeed(server.DB)
 }
 
 func (server *Server) Run(addr string) {
@@ -45,8 +58,9 @@ func (server *Server) Run(addr string) {
 
 func (server *Server) initializeDB(dbConfig DBConfig) {
 	var err error
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta", dbConfig.DBHost, dbConfig.DBUser, dbConfig.DBPassword, dbConfig.DBName, dbConfig.DBPort)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Almaty", dbConfig.DBHost, dbConfig.DBUser, dbConfig.DBPassword, dbConfig.DBName, dbConfig.DBPort)
 	server.DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+
 	if err != nil {
 		panic("Failed on connecting to the database server")
 	}
@@ -59,7 +73,7 @@ func (server *Server) initializeDB(dbConfig DBConfig) {
 		}
 	}
 
-	fmt.Println("Database migrated successfully.")
+	fmt.Println("Database migrated successfully")
 }
 
 func getEnv(key, fallback string) string {
@@ -71,9 +85,20 @@ func getEnv(key, fallback string) string {
 }
 
 func Run() {
+
+	//dsn := fmt.Sprintf("host=localhost user=postgres password=password dbname=shop port=5432 sslmode=disable  TimeZone=Asia/Almaty")
+	//server, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	//fmt.Println(server)
 	var server = Server{}
 	var appConfig = AppConfig{}
 	var dbConfig = DBConfig{}
+
+	//err := godotenv.Load()
+	//if err != nil {
+	//  fmt.Printf("Failed on connecting to the database server %v", err)
+	//  var server = Server{}
+	//  var appConfig = AppConfig{}
+	//  var dbConfig = DBConfig{}
 
 	err := godotenv.Load()
 	if err != nil {
@@ -86,10 +111,11 @@ func Run() {
 
 	dbConfig.DBHost = getEnv("DB_HOST", "localhost")
 	dbConfig.DBUser = getEnv("DB_USER", "postgres")
-	dbConfig.DBPassword = getEnv("DB_PASSWORD", "aktolkyn")
+	dbConfig.DBPassword = getEnv("DB_PASSWORD", "online")
 	dbConfig.DBName = getEnv("DB_NAME", "shop")
 	dbConfig.DBPort = getEnv("DB_PORT", "5432")
 
 	server.Initialize(appConfig, dbConfig)
 	server.Run(":" + appConfig.AppPort)
+
 }
