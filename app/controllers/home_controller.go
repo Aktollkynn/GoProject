@@ -1,10 +1,17 @@
 package controllers
 
 import (
-	"fmt"
+	"github.com/unrolled/render"
 	"net/http"
 )
 
-func Home(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to Aktolkyn's homepage")
+func (server *Server) Home(w http.ResponseWriter, r *http.Request) {
+	render := render.New(render.Options{
+		Layout: "layout",
+	})
+
+	_ = render.HTML(w, http.StatusOK, "home", map[string]interface{}{
+		"title": "Home Title",
+		"body":  "Home Description",
+	})
 }
