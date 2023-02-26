@@ -19,6 +19,11 @@ func ProductFaker(db *gorm.DB) *models.Product {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	name := faker.Name()
 	return &models.Product{
 		ID:               uuid.New().String(),

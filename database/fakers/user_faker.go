@@ -14,7 +14,7 @@ func UserFaker(db *gorm.DB) *models.User {
 		FirstName:     faker.FirstName(),
 		LastName:      faker.LastName(),
 		Email:         faker.Email(),
-		Password:      "aaaaaaaaaaaaaaaaaaa",
+		Password:      "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
 		RememberToken: "",
 		CreatedAt:     time.Time{},
 		UpdatedAt:     time.Time{},

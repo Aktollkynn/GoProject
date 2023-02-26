@@ -1,8 +1,6 @@
 package models
 
-import (
-	"time"
-)
+import "time"
 
 type ProductImage struct {
 	ID         string `gorm:"size:36;not null;uniqueIndex;primary_key"`

@@ -5,16 +5,14 @@ import (
 	"fmt"
 	"github.com/Aktollkynn/GoProject.git/app/controllers"
 	"github.com/Aktollkynn/GoProject.git/database/seeders"
+	"github.com/joho/godotenv"
 	"github.com/urfave/cli"
 	"log"
 	"net/http"
 	"os"
 
-	"gorm.io/driver/postgres"
-
-	"github.com/joho/godotenv"
-
 	"github.com/gorilla/mux"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -117,6 +115,10 @@ func Run() {
 	var appConfig = AppConfig{}
 	var dbConfig = DBConfig{}
 
+	//dsn := fmt.Sprintf("host=localhost user=postgres password=password dbname=shop port=5432 sslmode=disable  TimeZone=Asia/Almaty")
+	//server, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	//fmt.Println(server)
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("Error on loading .env file")
@@ -130,6 +132,9 @@ func Run() {
 	dbConfig.DBUser = getEnv("DB_USER", "user")
 	dbConfig.DBPassword = getEnv("DB_PASSWORD", "password")
 	dbConfig.DBName = getEnv("DB_NAME", "dbname")
+	dbConfig.DBUser = getEnv("DB_USER", "postgres")
+	dbConfig.DBPassword = getEnv("DB_PASSWORD", "online")
+	dbConfig.DBName = getEnv("DB_NAME", "shop")
 	dbConfig.DBPort = getEnv("DB_PORT", "5432")
 	dbConfig.DBDriver = getEnv("DB_DRIVER", "postgres")
 
