@@ -10,3 +10,6 @@ In the second progress, we have connected the project to the database. For our p
 
 Progress 3:
 In the third progress, our team created the main page, the product page, which displays a list of store products from the database, also the registration page.
+
+Progress 4:
+In fourth progress, our team created registration, users can register in the website and their data will appeared and stored in database
