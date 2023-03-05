@@ -3,6 +3,9 @@ package controllers
 import (
 	"html/template"
 	"net/http"
+
+	// "gopkg.in/kataras/go-serializer.v0/data"  05.03.23
+	
 )
 
 //	func Home(w http.ResponseWriter, r *http.Request) {
@@ -40,14 +43,21 @@ func Registerr(w http.ResponseWriter, r *http.Request) {
 	}
 	tem.Execute(w, data)
 }
+func sign_in_page(w http.ResponseWriter, r *http.Request) {
+    const name = "aaaaa"
+	t, _ := template.ParseFiles("templates/login.html")
+	t.Execute(w, name)
+}
+
 func Home_page(w http.ResponseWriter, r *http.Request) {
 	const name = "aaaa"
 	t, _ := template.ParseFiles("templates/home_page.html")
 	t.Execute(w, name)
 }
+
 func HandlerRequest() {
 	http.HandleFunc("/home_page/", Home_page)
-	//	http.HandleFunc("/sign_in/", sign_in_page)
+    http.HandleFunc("/sign_in/",  sign_in_page)
 	http.HandleFunc("/register/", Registerr)
 	http.ListenAndServe(":9000", nil)
 }

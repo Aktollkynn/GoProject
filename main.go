@@ -6,6 +6,9 @@ import (
 )
 
 func main() {
+	println("Welcome to our Project")
+	println("Main page  ->>   http://localhost:9000/home_page/")
+
 	controllers.HandlerRequest()
 	app.Run()
 
