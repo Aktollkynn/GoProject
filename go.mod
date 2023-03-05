@@ -26,4 +26,5 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	golang.org/x/crypto v0.4.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
+	gopkg.in/kataras/go-serializer.v0 v0.0.4
 )
