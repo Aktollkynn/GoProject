@@ -7,7 +7,7 @@ import (
 
 func main() {
 	println("Welcome to our Project")
-	println("http://localhost:9000/sign_in/")
+	println("Login http://localhost:9000/sign_in/\nHome page: http://localhost:9000/home_page/#")
 
 	controllers.HandlerRequest()
 	app.Run()
