@@ -1,53 +1,53 @@
 package controllers
 
 import (
+	"database/sql"
+	"fmt"
+	_ "github.com/lib/pq"
 	"html/template"
 	"net/http"
 )
 
-//	func Home(w http.ResponseWriter, r *http.Request) {
-//		tmpl, err := template.ParseFiles("templates/home.tmpl")
-//		if err != nil {
-//			// handle error
-//		}
-//
-//		_ = render.HTML(w, http.StatusOK, "home", map[string]interface{}{
-//			"title": "Home Title",
-//			"body":  "Home Description",
-//		})
-//
-// }
-
-type Register struct {
-	First_name       string
-	Last_name        string
-	Email            string
-	Password         string
-	Confirm_password string
-}
-
-var (
-	tem = template.Must(template.ParseFiles("templates/register.html"))
-)
-
-func Registerr(w http.ResponseWriter, r *http.Request) {
-	data := Register{
-		First_name:       r.FormValue("first_name"),
-		Last_name:        r.FormValue("last_name"),
-		Email:            r.FormValue("email"),
-		Password:         r.FormValue("password"),
-		Confirm_password: r.FormValue("confirm_password"),
+func register(w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFiles("templates/register.html")
+	if err != nil {
+		fmt.Fprintf(w, err.Error())
 	}
-	tem.Execute(w, data)
+	t.Execute(w, "register")
 }
+
+func save_user(w http.ResponseWriter, r *http.Request) {
+	Fname := r.FormValue("first_name")
+	Lname := r.FormValue("last_name")
+	Email := r.FormValue("email")
+	Password := r.FormValue("password")
+
+	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/shop?sslmode=disable")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	insert, err := db.Query(fmt.Sprintf("INSERT INTO users (first_name, last_name, email, password) VALUES('%s', '%s', '%s', '%s')", Fname, Lname, Email, Password))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer insert.Close()
+	http.Redirect(w, r, "/home_page", http.StatusSeeOther)
+}
+
 func Home_page(w http.ResponseWriter, r *http.Request) {
-	const name = "aaaa"
-	t, _ := template.ParseFiles("templates/home_page.html")
-	t.Execute(w, name)
+	t, err := template.ParseFiles("templates/home_page.html")
+	if err != nil {
+		fmt.Fprintf(w, err.Error())
+	}
+	t.Execute(w, "home_page")
 }
 func HandlerRequest() {
 	http.HandleFunc("/home_page/", Home_page)
-	//	http.HandleFunc("/sign_in/", sign_in_page)
-	http.HandleFunc("/register/", Registerr)
+	http.HandleFunc("/save_user/", save_user)
+	http.HandleFunc("/register/", register)
 	http.ListenAndServe(":9000", nil)
 }
