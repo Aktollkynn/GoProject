@@ -13,7 +13,87 @@
     
    
 <header>
-    <div class="bg-dark collapse show" id="navbarHeader" >
+    <style>
+        :root {
+  --button-background: white;
+  --button-color: dark;
+  
+  --dropdown-highlight: rgb(3, 10, 17);
+  --dropdown-width: 80px;
+  --dropdown-background: white;
+  --dropdown-color: rgb(11, 13, 35);
+}
+
+a.button {
+  /* Frame */
+ 
+  padding: 6px 28px;
+  border-radius: 35px;
+  box-sizing: border-box;
+  background: var(--button-background);
+  color: var(--button-color);
+  font-size: 18px;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  cursor: pointer;
+}
+
+.dropdown {
+  position: relative;
+  padding: 0;
+  margin-right: 1em;
+}
+
+
+.dropdown ul {
+  position: absolute;
+  margin: 20px 0 0 0;
+  padding: 20px 0;
+  width: var(--dropdown-width);
+  left: 50%;
+  margin-left: calc((var(--dropdown-width) / 2)  * -1);
+  box-sizing: border-box;
+  z-index: 2;
+  
+  background: var(--dropdown-background);
+  border-radius: 6px;
+  list-style: none;
+}
+
+
+.dropdown ul li a:link, .dropdown ul li a:visited {
+  display: inline-block;
+  padding: 8px 0.8rem;
+  border-radius: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  
+  color: var(--dropdown-color);
+  text-decoration: none;
+}
+
+.dropdown ul li a:hover {
+  background-color: var(--dropdown-highlight);
+  color: var(--dropdown-background);
+}
+
+/* Dropdown triangle */
+.dropdown ul::before {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  top: -10px;
+  left: 50%;
+  margin-left: -10px;
+  border-style: solid;
+  border-width: 0 10px 10px 10px;
+  border-color: transparent transparent var(--dropdown-background) transparent;
+}
+
+
+    </style>
+    
+    <div class="bg-dark collapse " id="navbarHeader" >
         <div class="container">
             <div class="row">
                 <div class="col-sm-8 col-md-7 py-4">
@@ -35,13 +115,13 @@
     <div class="navbar navbar-dark bg-dark shadow-sm">
         <div class="container">
 <!--  Main menu Shopping -->
-            <a href="http://localhost:9000/home_page/#" class="navbar-brand d-flex align-items-center">
+            <a href="h/home_page/#" class="navbar-brand d-flex align-items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-basket-fill" viewBox="0 0 16 18">
                     <path d="M5.071 1.243a.5.5 0 0 1 .858.514L3.383 6h9.234L10.07 1.757a.5.5 0 1 1 .858-.514L13.783 6H15.5a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H15v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9H.5a.5.5 0 0 1-.5-.5v-2A.5.5 0 0 1 .5 6h1.717L5.07 1.243zM3.5 10.5a.5.5 0 1 0-1 0v3a.5.5 0 0 0 1 0v-3zm2.5 0a.5.5 0 1 0-1 0v3a.5.5 0 0 0 1 0v-3zm2.5 0a.5.5 0 1 0-1 0v3a.5.5 0 0 0 1 0v-3zm2.5 0a.5.5 0 1 0-1 0v3a.5.5 0 0 0 1 0v-3zm2.5 0a.5.5 0 1 0-1 0v3a.5.5 0 0 0 1 0v-3z"/>
                   </svg>
                 <strong> Sdu Shopping</strong></a>
 <!--  Contact -->
-            <a href="http://localhost:9000/home_page/#" class="navbar-brand d-flex align-items-center">
+            <a href="/home_page/#" class="navbar-brand d-flex align-items-center">
                 <strong> Main</strong>
             </a>
 
@@ -49,13 +129,24 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="true" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
- 
         </div>
-        <a href="http://localhost:9000/sign_in/" class="navbar-brand d-flex align-items--right"><b>Sign in</b></a>
+        <!-- Profile & Logout page -->
+        <details class="dropdown">
+            <summary role="button">
+              <a class="button">Welcome first_name</a>
+            </summary>
+            <ul>
+              <li><a href="#">Profile</a></li>
+              <li><a href="/sign_in">Logout</a></li>
+          </ul>
+        </details>
+       
+        <!-- <a href="http://localhost:9000/pofile" class="navbar-brand d-flex align-items--right"><b>Welcome first_name</b></a> -->
     </div>
 </header>
 
 <main>
+    
 
     <section class="py-5 text-center container">
         <div class="row py-lg-5">
