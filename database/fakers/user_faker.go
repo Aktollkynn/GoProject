@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+
 func UserFaker(db *gorm.DB) *models.User {
 	return &models.User{
 		ID:            uuid.New().String(),

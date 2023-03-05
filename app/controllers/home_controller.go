@@ -29,6 +29,7 @@ type Register struct {
 	Confirm_password string
 }
 
+
 var (
 	tem = template.Must(template.ParseFiles("templates/register.html"))
 )
