@@ -37,7 +37,13 @@ func save_user(w http.ResponseWriter, r *http.Request) {
 	defer insert.Close()
 	http.Redirect(w, r, "/home_page", http.StatusSeeOther)
 }
-
+func Login(w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFiles("templates/login.html")
+	if err != nil {
+		fmt.Fprintf(w, err.Error())
+	}
+	t.Execute(w, "login")
+}
 func Home_page(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles("templates/home_page.html")
 	if err != nil {
@@ -47,6 +53,7 @@ func Home_page(w http.ResponseWriter, r *http.Request) {
 }
 func HandlerRequest() {
 	http.HandleFunc("/home_page/", Home_page)
+	http.HandleFunc("/login/", Login)
 	http.HandleFunc("/save_user/", save_user)
 	http.HandleFunc("/register/", register)
 	http.ListenAndServe(":9000", nil)
