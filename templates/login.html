@@ -115,7 +115,7 @@
 </head>
 <body>
 <div class="signup-form">
-  <form action="" method="post">
+  <form action="/loginauth/" method="get">
     <h2>Login</h2>
     <p class="hint-text">Create your account. It's free and only takes a minute.</p>
     <div class="form-group">
@@ -131,7 +131,14 @@
       <button type="submit" class="btn btn-success btn-lg btn-block">Log in</button>
     </div>
   </form>
+  <!-- <br>
+  {{if .}}
+    {{.}}
+{{end}}
+<br> -->
   <div class="text-center">Don't have an account? <a href="/register/">Sign in</a></div>
 </div>
+
+
 </body>
 </html>
