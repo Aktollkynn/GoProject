@@ -10,7 +10,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var store = sessions.NewCookieStore([]byte("super-secret-key"))
+
 
 func Register(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("***Register running***")
@@ -57,11 +57,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, "login")
 }
 
-// New 00:50
+// New 12.02.23
 var (
 	EmailNew    string
 	PasswordNew string
 )
+var store = sessions.NewCookieStore([]byte("super-secret-key"))
 
 func LoginAuth(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("***LoginAuthHandler running***")
@@ -113,15 +114,7 @@ func LoginAuth(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
-func Home_page(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("***Home running***")
 
-	t, err := template.ParseFiles("templates/home_page.html")
-	if err != nil {
-		fmt.Fprintf(w, err.Error())
-	}
-	t.Execute(w, "home_page")
-}
 func SessionLogout(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "session")
 	session.Values["authenticated"] = false
@@ -135,6 +128,15 @@ func SessionLogin(w http.ResponseWriter, r *http.Request) {
 	session.Values["password"] = r.FormValue("password")
 	session.Save(r, w)
 	http.Redirect(w, r, "/welcome", 302)
+}
+func Home_page(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("***Home running***")
+
+	t, err := template.ParseFiles("templates/home_page.html")
+	if err != nil {
+		fmt.Fprintf(w, err.Error())
+	}
+	t.Execute(w, "home_page")
 }
 func HandlerRequest() {
 	http.HandleFunc("/home_page/", Home_page)
