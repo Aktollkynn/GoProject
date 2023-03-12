@@ -21,8 +21,8 @@ we also have a branch here - https://github.com/Aktollkynn/GoProject/tree/Report
 
 ***__Progress 5:__***
 
-| __How Authorization work__|---|---|---|---|
-|     ---        |       ---              |       ---  |      ---                                  |    ---    |
-| `/register`    | `/registerauth`        | `/login`   | `/loginauth`                              | `/home_page` | 
-| register first | _user_ is  registered? | login user | checks _email_ && _password_ to correct   | *Welcome!* |
+| __How Authorization work__|---|---|---|---| ---|
+|     ---        |       ---              |       ---  |      ---                                |    ---       | ---        |
+| `/register`    | `/registerauth`        | `/login`   | `/loginauth`                            | `/home_page` | `/logout`  | 
+| register first | _user_ is  registered? | login user | checks _email_ & _password_ to correct  | *Welcome!*   | end session|
 
