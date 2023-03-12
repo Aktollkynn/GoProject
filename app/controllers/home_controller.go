@@ -4,11 +4,50 @@ import (
 	"database/sql"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/sessions"
 	_ "github.com/lib/pq"
 )
+
+type Product struct {
+	ID          int
+	Name        string
+	Description string
+	Price       float64
+}
+
+func searchHandler(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query().Get("name")
+
+	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT id, name, description, price FROM products WHERE name LIKE $1", "%"+query+"%")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var results []Product
+	for rows.Next() {
+		var p Product
+		if err := rows.Scan(&p.ID, &p.Name, &p.Description, &p.Price); err != nil {
+			log.Fatal(err)
+		}
+		results = append(results, p)
+	}
+	if err := rows.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	tmpl := template.Must(template.ParseFiles("templates/search_results.html"))
+	tmpl.ExecuteTemplate(w, "search_results", results)
+}
 
 var store = sessions.NewCookieStore([]byte("super-secret-key"))
 
@@ -30,14 +69,15 @@ func RegisterAuth(w http.ResponseWriter, r *http.Request) {
 	Email := r.FormValue("email")
 	Password := r.FormValue("password")
 
-	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer db.Close()
 
-	insert, err := db.Query(fmt.Sprintf("INSERT INTO users (first_name, last_name, email, password) VALUES('%s', '%s', '%s', '%s')", Fname, Lname, Email, Password))
+	insert, err := db.Query(fmt.Sprintf("INSERT INTO users (id, first_name, last_name, email, password) VALUES(DEFAULT, '%s', '%s', '%s', '%s')", Fname, Lname, Email, Password))
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -71,7 +111,7 @@ func LoginAuth(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(":: Your input ->>  Email:", Email, "Password:", Password)
 	EmailNew = Email
 	PasswordNew = Password
-	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -114,14 +154,46 @@ func LoginAuth(w http.ResponseWriter, r *http.Request) {
 
 }
 func Home_page(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("***Home running***")
-
 	t, err := template.ParseFiles("templates/home_page.html")
 	if err != nil {
-		fmt.Fprintf(w, err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	t.Execute(w, "home_page")
+
+	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT id, name, description, price FROM products")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var products []Product
+	for rows.Next() {
+		var p Product
+		if err := rows.Scan(&p.ID, &p.Name, &p.Description, &p.Price); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		products = append(products, p)
+	}
+	if err := rows.Err(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err := t.Execute(w, products); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
+
 func SessionLogout(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "session")
 	session.Values["authenticated"] = false
@@ -143,5 +215,6 @@ func HandlerRequest() {
 	http.HandleFunc("/registerauth/", RegisterAuth)
 	http.HandleFunc("/register/", Register)
 	http.HandleFunc("/slogout/", SessionLogout)
+	http.HandleFunc("/search/", searchHandler)
 	http.ListenAndServe("localhost:8000", nil)
 }
