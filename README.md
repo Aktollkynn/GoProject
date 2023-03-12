@@ -37,7 +37,7 @@ PostgreSQl DB,  `Table: users`
 
 | __How Authorization work__|---|---|---|---| ---|
 |     ---        |       ---              |       ---  |      ---                                |    ---       | ---        |
-| /register    | /registerauth        | /login   | /loginauth                            | /home_page | /logout  | 
+| `/register `   | `/registerauth`        | `/login`   | `/loginauth`                            | `/home_page` | `/logout`  | 
 | register first | _user_ is  registered? | login user | checks _email_ & _password_ to correct  | *Welcome!*   | end session|
 
 **Overview:** *In the fifth progression, we created a user login and a product search by name. This way, users who have registered will be able to login to our website. Also on the home page appears information about products directly from the database, namely books; users can search for books by name and see the information.*
