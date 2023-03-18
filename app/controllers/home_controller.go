@@ -81,6 +81,12 @@ func RegisterAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(Password), bcrypt.DefaultCost)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -88,7 +94,7 @@ func RegisterAuth(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	insert, err := db.Query(fmt.Sprintf("INSERT INTO users (id, first_name, last_name, email, password) VALUES(DEFAULT, '%s', '%s', '%s', '%s')", Fname, Lname, Email, Password))
+	insert, err := db.Query(fmt.Sprintf("INSERT INTO users (id, first_name, last_name, email, password) VALUES(DEFAULT, '%s', '%s', '%s', '%s')", Fname, Lname, Email, hashedPassword))
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -141,7 +147,8 @@ func LoginAuth(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	err = db.QueryRow("SELECT password FROM users WHERE email = $1", Email).Scan(&Password)
+	var hashedPassword string
+	err = db.QueryRow("SELECT password FROM users WHERE email = $1", Email).Scan(&hashedPassword)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			fmt.Fprintf(w, "Password or Email incorrect!")
@@ -150,7 +157,7 @@ func LoginAuth(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(Password), []byte(Password))
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(Password))
 	if err != nil {
 		fmt.Fprintf(w, "Password or Email incorrect!")
 		return
