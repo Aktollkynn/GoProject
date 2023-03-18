@@ -2,13 +2,15 @@ package controllers
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	"github.com/gorilla/sessions"
+	_ "github.com/lib/pq"
+	"golang.org/x/crypto/bcrypt"
 	"html/template"
 	"log"
 	"net/http"
-
-	"github.com/gorilla/sessions"
-	_ "github.com/lib/pq"
+	"regexp"
 )
 
 type Product struct {
@@ -52,7 +54,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 var store = sessions.NewCookieStore([]byte("super-secret-key"))
 
 func Register(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("***Register running***")
+	fmt.Println("Register running")
 
 	t, err := template.ParseFiles("templates/register.html")
 	if err != nil {
@@ -62,12 +64,22 @@ func Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func RegisterAuth(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("***RegisterAuthHandler running***")
+	fmt.Println("RegisterAuthHandler running")
 
 	Fname := r.FormValue("first_name")
 	Lname := r.FormValue("last_name")
 	Email := r.FormValue("email")
 	Password := r.FormValue("password")
+
+	if !validateEmail(Email) {
+		http.Error(w, "Invalid email format", http.StatusBadRequest)
+		return
+	}
+
+	if err := ValidateRegistrationForm(Fname, Lname, Email, Password); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
 	if err != nil {
@@ -83,13 +95,33 @@ func RegisterAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer insert.Close()
-	fmt.Printf("~~~New user altered :[first_mame: '%s', last_name:'%s', email:'%s', password: '%s']", Fname, Lname, Email, Password)
 
-	fmt.Println("==Successfully Registered==")
+	fmt.Println("Successfully Registered")
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
+
+func ValidateRegistrationForm(fname, lname, email, password string) error {
+
+	if fname == "" || lname == "" {
+		return errors.New("Firs tname and last name are required")
+	}
+
+	if password == "" {
+		return errors.New("Password is a required")
+	}
+	if len(password) < 8 {
+		return errors.New("Password must be at least 8 symbols")
+	}
+	return nil
+}
+
+func validateEmail(email string) bool {
+	regex := regexp.MustCompile(`^[^@\s]+@[^@\s]+\.[^@\s]{2,}$`)
+	return regex.MatchString(email)
+}
+
 func Login(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("***Login running***")
+	fmt.Println("Login running")
 	t, err := template.ParseFiles("templates/login.html")
 	if err != nil {
 		fmt.Fprintf(w, err.Error())
@@ -97,60 +129,34 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, "login")
 }
 
-// New 00:50
-var (
-	EmailNew    string
-	PasswordNew string
-)
-
 func LoginAuth(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("***LoginAuthHandler running***")
+	fmt.Println("LoginAuthHandler running")
 	r.ParseForm()
 	Email := r.FormValue("email")
 	Password := r.FormValue("password")
-	fmt.Println(":: Your input ->>  Email:", Email, "Password:", Password)
-	EmailNew = Email
-	PasswordNew = Password
+
 	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		panic(err.Error())
 	}
 	defer db.Close()
-	//-----
-	rows, err := db.Query("SELECT email, password FROM users order by id desc")
+
+	err = db.QueryRow("SELECT password FROM users WHERE email = $1", Email).Scan(&Password)
 	if err != nil {
-		panic(err)
-	}
-	defer rows.Close()
-	fmt.Println("---All users from DB:")
-	countuser := 0
-	for rows.Next() {
-		err := rows.Scan(&Email, &Password)
-		if EmailNew == Email && PasswordNew == Password {
-			EmailNew = Email
-			fmt.Println("--> Email and Password Correct! WELCOME ####")
-			http.Redirect(w, r, "/home_page", http.StatusSeeOther)
-			countuser += 1
-
+		if err == sql.ErrNoRows {
+			fmt.Fprintf(w, "Password or Email incorrect!")
+			return
 		}
-
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println("\n:::", Email, Password)
+		log.Fatal(err)
 	}
 
-	EmailNew = ""
-	err = rows.Err()
+	err = bcrypt.CompareHashAndPassword([]byte(Password), []byte(Password))
 	if err != nil {
-		panic(err)
-	}
-
-	if countuser <= 0 {
-		fmt.Println(w, "Password or Email incorrect, Try again!")
-		fmt.Fprintf(w, "Password or Email incorrect, Try again!")
+		fmt.Fprintf(w, "Password or Email incorrect!")
 		return
 	}
+	fmt.Println("Email and Password Correct!")
+	http.Redirect(w, r, "/home_page", http.StatusSeeOther)
 
 }
 func Home_page(w http.ResponseWriter, r *http.Request) {
