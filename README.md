@@ -46,3 +46,7 @@ PostgreSQl DB,  `Table: users`
 - [x] Login System -> Users from DB(if exist, otherwise try again)
 - [x] Logout -> After session end return to Login page
 - [x] Searching -> Any information
+
+***__Progress 6:__*** 
+
+ In the sixth progression, we created validation - firstname, lastname, password, email and hashing password.
