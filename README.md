@@ -56,5 +56,16 @@ PostgreSQl DB,  `Table: users`
  - [x] User data in home page(shows after login, and his fname, lname)
  - [x] Filter prices(max, min)
  - [x] Fixed issues
+ PostgreSQl DB,  `Table: products`
+```sql
++-------------+------------+--------+-----+------------+---------+
+| Name        | Data type  | Length | Key | Not Null?  | Default |
++-------------+------------+--------+-----+------------+---------+
+| id          | integer    |        |     | Yes        |         |
+| name        | varchar    | 50     |     | Yes        |         |
+| description | varchar    | 355    |     | Yes        |         |
+| price       | integer    |        |     | Yes        |         |
++-------------+------------+--------+-----+------------+---------+
+```
 
  
