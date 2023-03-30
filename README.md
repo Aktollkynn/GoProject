@@ -56,7 +56,8 @@ PostgreSQl DB,  `Table: users`
  - [x] User data in home page(shows after login, and his fname, lname)
  - [x] Filter prices(max, min)
  - [x] Fixed issues
- PostgreSQl DB,  `Table: products`
+
+PostgreSQl DB,  `Table: products`
 ```sql
 +-------------+------------+--------+-----+------------+---------+
 | Name        | Data type  | Length | Key | Not Null?  | Default |
