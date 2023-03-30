@@ -16,27 +16,32 @@
 
                 <div class="container">
                     <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-                        <div><p style="color:azure; margin-left: -250px; margin-top: 5px">Welcome</p> </div>
+                        <div style=" display: flex;align-items: center;"><p style="color:azure; margin-left: -250px; margin-top: 10px">Welcome </p> 
+                            <p style="color:#FFBF00; margin-left: 5px; margin-top: 10px">{{.User.FirstName}} {{.User.LastName}}</p>                            
+                        </div>
+                        
+                       
                         <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
                             <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
                         </a>
 
                         <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                            <li><a href="#" class="nav-link px-2 text-secondary">Home</a></li>
+                            <li><a href="/home_page" class="nav-link px-2 text-secondary">Home</a></li>
                             <li><a href="#" class="nav-link px-2 text-white">Features</a></li>
                             <li><a href="#" class="nav-link px-2 text-white">Pricing</a></li>
                             <li><a href="#" class="nav-link px-2 text-white">FAQs</a></li>
                             <li><a href="#" class="nav-link px-2 text-white">About</a></li>
                         </ul>
 
-                        <form  action="/search/" method="get">
+                        <form  action="/search/" method="get", style="margin-right: 5px;">
                             <label for="name">Search products:</label>
-                            <input type="text" id="name" name="name">
+                            <input type="text" id="name" name="name" placeholder="Enter name">>
                             {{/*                            <input type="submit" value="Search">*/}}
                         </form>
+                        <br>
 
                         <div class="text-end">
-                            <a href="/slogout/">
+                            <a href="/logout">
                                 <button type="button" class="btn btn-outline-light me-2">Logout</button>
                             </a>
                             <a href="/register/" class="text-white">
@@ -66,6 +71,11 @@
         <div class="row py-lg-5">
             <div class="col-lg-6 col-md-8 mx-auto">
                 <h1 class="fw-light">Album example</h1>
+                <!-- <div class="header-right"> -->
+                    <!-- <a href="#">Welcome, {{.User.FirstName}} {{.User.LastName}}</a>
+                    <a href="/logout">Logout</a> -->
+                <!-- </div> -->
+                
                 <p class="lead text-muted">Something short and leading about the collection below—its contents, the creator, etc. Make it short and sweet, but not too short so folks don’t simply skip over it entirely.</p>
                 <p>
                     <a href="#" class="btn btn-primary my-2">Main call to action</a>
@@ -79,27 +89,27 @@
         <div class="container">
 
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-                {{range .}}
-                    <div class="col">
-                        <div class="card shadow-sm">
-                            <img src="https://images.theconversation.com/files/45159/original/rptgtpxd-1396254731.jpg?ixlib=rb-1.1.0&q=45&auto=format&w=1356&h=668&fit=crop" alt="">
-                            <div class="card-body">
-
-                                <h2>{{.Name}}</h2>
-                                <p class="card-text">{{.Description}}</p>
-                                <p>Price: {{.Price}} tenge</p>
-
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary">Add to cart</button>
-                                    </div>
-                                    <small class="text-muted">9 mins</small>
+                {{range .Products}}
+                <div class="col">
+                    <div class="card shadow-sm">
+                        <img src="https://images.theconversation.com/files/45159/original/rptgtpxd-1396254731.jpg?ixlib=rb-1.1.0&q=45&auto=format&w=1356&h=668&fit=crop" alt="">
+                        <div class="card-body">
+            
+                            <h2>{{.Name}}</h2>
+                            <p class="card-text">{{.Description}}</p>
+                            <p>Price: {{.Price}} tenge</p>
+            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary">Add to cart</button>
                                 </div>
+                                <small class="text-muted">9 mins</small>
                             </div>
                         </div>
                     </div>
-                {{end}}
+                </div>
+            {{end}}
             </div>
         </div>
     </div>

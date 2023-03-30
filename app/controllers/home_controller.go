@@ -2,15 +2,18 @@ package controllers
 
 import (
 	"database/sql"
+	"encoding/gob"
 	"errors"
 	"fmt"
-	"github.com/gorilla/sessions"
-	_ "github.com/lib/pq"
-	"golang.org/x/crypto/bcrypt"
 	"html/template"
 	"log"
 	"net/http"
 	"regexp"
+	"strings"
+
+	"github.com/gorilla/sessions"
+	_ "github.com/lib/pq"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Product struct {
@@ -20,16 +23,32 @@ type Product struct {
 	Price       float64
 }
 
+// --------------------------------------------------
 func searchHandler(w http.ResponseWriter, r *http.Request) {
+	minPrice := r.URL.Query().Get("min_price")
+	maxPrice := r.URL.Query().Get("max_price")
 	query := r.URL.Query().Get("name")
 
-	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
+	// Add filter conditions
+	var filterConditions []string
+	if minPrice != "" {
+		filterConditions = append(filterConditions, fmt.Sprintf("price >= %s", minPrice))
+	}
+	if maxPrice != "" {
+		filterConditions = append(filterConditions, fmt.Sprintf("price <= %s", maxPrice))
+	}
+	filterClause := ""
+	if len(filterConditions) > 0 {
+		filterClause = "AND " + strings.Join(filterConditions, " AND ")
+	}
+	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
+	rows, err := db.Query("SELECT id, name, description, price FROM products WHERE name LIKE $1 "+filterClause, "%"+query+"%")
 
-	rows, err := db.Query("SELECT id, name, description, price FROM products WHERE name LIKE $1", "%"+query+"%")
+	// rows, err := db.Query("SELECT id, name, description, price FROM products WHERE name LIKE $1", "%"+query+"%")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,6 +72,10 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 
 var store = sessions.NewCookieStore([]byte("super-secret-key"))
 
+func init() {
+	gob.Register(User{})
+}
+
 func Register(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Register running")
 
@@ -63,20 +86,21 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, "register")
 }
 
+// --------------------------------------------------
 func RegisterAuth(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("RegisterAuthHandler running")
 
 	Fname := r.FormValue("first_name")
 	Lname := r.FormValue("last_name")
-	Email := r.FormValue("email")
+	email := r.FormValue("email")
 	Password := r.FormValue("password")
 
-	if !validateEmail(Email) {
+	if !validateemail(email) {
 		http.Error(w, "Invalid email format", http.StatusBadRequest)
 		return
 	}
 
-	if err := ValidateRegistrationForm(Fname, Lname, Email, Password); err != nil {
+	if err := ValidateRegistrationForm(Fname, Lname, email, Password); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -87,14 +111,14 @@ func RegisterAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer db.Close()
 
-	insert, err := db.Query(fmt.Sprintf("INSERT INTO users (id, first_name, last_name, email, password) VALUES(DEFAULT, '%s', '%s', '%s', '%s')", Fname, Lname, Email, hashedPassword))
+	insert, err := db.Query(fmt.Sprintf("INSERT INTO users (id, first_name, last_name, email, password) VALUES(DEFAULT, '%s', '%s', '%s', '%s')", Fname, Lname, email, hashedPassword))
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -106,26 +130,36 @@ func RegisterAuth(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
+// --------------------------------------------------
 func ValidateRegistrationForm(fname, lname, email, password string) error {
 
 	if fname == "" || lname == "" {
-		return errors.New("Firs tname and last name are required")
+		return errors.New("Firstname and last name are required")
 	}
 
 	if password == "" {
-		return errors.New("Password is a required")
+		return errors.New("Password is required")
 	}
 	if len(password) < 8 {
-		return errors.New("Password must be at least 8 symbols")
+		return errors.New("Password must be at least 8 characters")
 	}
+
 	return nil
 }
 
-func validateEmail(email string) bool {
+// --------------------------------------------------
+func validateemail(email string) bool {
 	regex := regexp.MustCompile(`^[^@\s]+@[^@\s]+\.[^@\s]{2,}$`)
 	return regex.MatchString(email)
 }
 
+type User struct {
+	FirstName string
+	LastName  string
+	email     string
+}
+
+// --------------------------------------------------
 func Login(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Login running")
 	t, err := template.ParseFiles("templates/login.html")
@@ -135,23 +169,41 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, "login")
 }
 
+// --------------------------------------------------
+func Logout(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, "session-name")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	session.Options.MaxAge = -1
+	err = session.Save(r, w)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
+}
+
+// --------------------------------------------------
 func LoginAuth(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("LoginAuthHandler running")
 	r.ParseForm()
-	Email := r.FormValue("email")
+
+	email := r.FormValue("email")
 	Password := r.FormValue("password")
 
-	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		panic(err.Error())
 	}
 	defer db.Close()
 
-	var hashedPassword string
-	err = db.QueryRow("SELECT password FROM users WHERE email = $1", Email).Scan(&hashedPassword)
+	var fname, lname, hashedPassword string
+	err = db.QueryRow("SELECT first_name, last_name, password FROM users WHERE email = $1", email).Scan(&fname, &lname, &hashedPassword)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			fmt.Fprintf(w, "Password or Email incorrect!")
+			fmt.Fprintln(w, "Password or email incorrect!")
 			return
 		}
 		log.Fatal(err)
@@ -159,21 +211,53 @@ func LoginAuth(w http.ResponseWriter, r *http.Request) {
 
 	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(Password))
 	if err != nil {
-		fmt.Fprintf(w, "Password or Email incorrect!")
+		fmt.Fprintln(w, "Password or email incorrect!")
 		return
 	}
-	fmt.Println("Email and Password Correct!")
-	http.Redirect(w, r, "/home_page", http.StatusSeeOther)
 
-}
-func Home_page(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles("templates/home_page.html")
+	session, err := store.Get(r, "session-name")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
+	user := User{
+		FirstName: fname,
+		LastName:  lname,
+		email:     email,
+	}
+	session.Values["user"] = user
+	err = session.Save(r, w)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/home_page", http.StatusSeeOther)
+}
+
+// --------------------------------------------------
+// var products = []Product{}
+type HomePageData struct {
+	User     User
+	Products []Product
+}
+
+func Home_page(w http.ResponseWriter, r *http.Request) {
+
+	session, err := store.Get(r, "session-name")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	user, ok := session.Values["user"].(User)
+	if !ok {
+		// session doesn't exist or user information is not stored
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -201,33 +285,32 @@ func Home_page(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := t.Execute(w, products); err != nil {
+	t, err := template.ParseFiles("templates/home_page.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data := map[string]interface{}{
+		"User":     user,
+		"Products": products,
+	}
+
+	err = t.Execute(w, data)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
 
-func SessionLogout(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "session")
-	session.Values["authenticated"] = false
-	session.Save(r, w)
-	http.Redirect(w, r, "/login", 302)
-}
-func SessionLogin(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "session")
-	session.Values["authenticated"] = true
-	session.Values["email"] = r.FormValue("email")
-	session.Values["password"] = r.FormValue("password")
-	session.Save(r, w)
-	http.Redirect(w, r, "/welcome", 302)
-}
 func HandlerRequest() {
+
 	http.HandleFunc("/home_page/", Home_page)
 	http.HandleFunc("/login/", Login)
+	http.HandleFunc("/logout", Logout)
 	http.HandleFunc("/loginauth/", LoginAuth)
 	http.HandleFunc("/registerauth/", RegisterAuth)
 	http.HandleFunc("/register/", Register)
-	http.HandleFunc("/slogout/", SessionLogout)
 	http.HandleFunc("/search/", searchHandler)
 	http.ListenAndServe("localhost:8000", nil)
 }
