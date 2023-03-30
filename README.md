@@ -47,6 +47,14 @@ PostgreSQl DB,  `Table: users`
 - [x] Logout -> After session end return to Login page
 - [x] Searching -> Any information
 
-***__Progress 6:__*** 
+***__Progress 6️⃣:__*** 
 
  In the sixth progression, we created validation - firstname, lastname, password, email and hashing password.
+ - [x] Validation for Register(Upper,s,all letter, number, min 8 symbols) 
+ - [x] Filter prices(max, min)
+ - [x] Logout seesin, cookie(without loggin, couldn't open home page even with link)
+ - [x] User data in home page(shows after login, and his fname, lname)
+ - [x] Filter prices(max, min)
+ - [x] Fixed issues
+
+ 
