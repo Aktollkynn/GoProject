@@ -82,7 +82,7 @@ In the seventh progression, we created user profile, and add profile menu,  edit
 
 
  - [x] Nav profile menu (Profile page, setting, logout,)  
-     <img src="https://github.com/galymzhantolepbergen/galymzhantolepbergen/blob/main/jobs/menu.jpeg?raw=true" width="150px" height="auto" />
+            <img src="https://github.com/galymzhantolepbergen/galymzhantolepbergen/blob/main/jobs/menu.jpeg?raw=true" width="150px" height="auto" />
  
  - [x] View all information about user(fname, lname, email,)
  - [x] Edit all information about user(fname, lname, email, password)
