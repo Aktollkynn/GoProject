@@ -3,79 +3,101 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Main page</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://getbootstrap.com/docs/5.3/examples/product/product.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta1/css/bootstrap.min.css">
+  
+
+  
 </head>
+
 <body>
-<header>
+  <header>
     <div class="bg-dark collapse show" id="navbarHeader">
+      <div class="container">
 
-        <div class="container">
-            <header class="p-3 bg-dark text-white">
+        <header class="p-4 bg-dark text-white">
+          <div class="container">
 
-                <div class="container">
-                    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-                        <div style=" display: flex;align-items: center;"><p style="color:azure; margin-left: -250px; margin-top: 10px">Welcome </p> 
-                            <p style="color:#FFBF00; margin-left: 5px; margin-top: 10px">{{.User.FirstName}} {{.User.LastName}}</p>                            
-                        </div>
-                        
-                       
-                        <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
-                            <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
-                        </a>
-
-                        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                            <li><a href="/home_page" class="nav-link px-2 text-secondary">Home</a></li>
-                            <li><a href="#" class="nav-link px-2 text-white">Features</a></li>
-                            <li><a href="#" class="nav-link px-2 text-white">Pricing</a></li>
-                            <li><a href="#" class="nav-link px-2 text-white">FAQs</a></li>
-                            <li><a href="#" class="nav-link px-2 text-white">About</a></li>
-                        </ul>
-
-                        <form  action="/search/" method="get", style="margin-right: 5px;">
-                            <label for="name">Search products:</label>
-                            <input type="text" id="name" name="name" placeholder="Enter name">>
-                            {{/*                            <input type="submit" value="Search">*/}}
-                        </form>
-                        <br>
-
-                        <div class="text-end">
-                            <a href="/logout">
-                                <button type="button" class="btn btn-outline-light me-2">Logout</button>
-                            </a>
-                            <a href="/register/" class="text-white">
-                                <button type="button" class="btn btn-warning">Sign-up</button>
-                            </a>
-
-                        </div>
-                    </div>
-                </div>
-            </header>
-        </div>
-    </div>
-    <div class="navbar navbar-dark bg-dark shadow-sm">
-        <div class="container">
-            <a style="margin-left: 1000px; margin-top: -90px" href="#" class="navbar-brand d-flex align-items-center">
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+              <a href="home_page/" class="navbar-brand d-flex align-items-center me-3">
+                <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" aria-hidden="true" class="me-2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+   
                 <strong>Album</strong>
             </a>
+              <div style="margin-left: 5%">
+            
+              <ul class="nav col-30 col-lg-auto me-lg-auto mb-4 justify-content-center mb-md-0" >
+                <li><a href="/home_page" class="nav-link px-2 text-secondary">Home</a></li>
+                <li><a href="#" class="nav-link px-2 text-white">Features</a></li>
+                <li><a href="#" class="nav-link px-2 text-white">Pricing</a></li>
+                <li><a href="#" class="nav-link px-2 text-white">FAQs</a></li>
+                <li><a href="#" class="nav-link px-2 text-white">About</a></li>
+              </ul>
+            </div>
+         
+              <form action="/search/" method="get" style="margin-right: 10%; margin-left:3%;">
+                <input type="text" id="name" name="name" placeholder="Search by Name" style="border-radius: 5px;">
+                <a href="/search/?name="><svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 
-        </div>
+                <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>          
+                <g id="SVGRepo_iconCarrier">       
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M15 10.5A3.502 3.502 0 0 0 18.355 8H21a1 1 0 1 0 0-2h-2.645a3.502 3.502 0 0 0-6.71 0H3a1 1 0 0 0 0 2h8.645A3.502 3.502 0 0 0 15 10.5zM3 16a1 1 0 1 0 0 2h2.145a3.502 3.502 0 0 0 6.71 0H21a1 1 0 1 0 0-2h-9.145a3.502 3.502 0 0 0-6.71 0H3z" fill="#ffffff"/>
+                </g>
+                
+                </svg></a>
+              </form>
+              
+         
 
+              <br>
+
+              <div class="text-end">
+                <nav class="navbar navbar-expand-lg navbar-dark">
+                  <div class="container-fluid">
+                    <ul class="navbar-nav">
+
+                      <!-- Avatar -->
+                      <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          <img src="https://img.freepik.com/free-icon/waiter_318-505999.jpg" class="rounded-circle" height="40" alt="Avatar" loading="lazy" />   <p style="color:#FFBF00;margin-left:10px; margin-top: 10px">hi {{.User.FirstName}} {{.User.LastName}}</p>   
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                          <li>
+                            <a class="dropdown-item" href="/profile">My profile</a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item" href="#">Settings</a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item" href="/logout">Logout</a>
+                          </li>
+                        </ul>
+                      </li>
+
+                    </ul>
+                  </div>
+                </nav>
+              </div>
+
+            </div>
+
+          </div>
+        </header>
+
+      </div>
     </div>
-</header>
+  </header>
 
 <main>
     <section class="py-5 text-center container">
         <div class="row py-lg-5">
             <div class="col-lg-6 col-md-8 mx-auto">
                 <h1 class="fw-light">Album example</h1>
-                <!-- <div class="header-right"> -->
-                    <!-- <a href="#">Welcome, {{.User.FirstName}} {{.User.LastName}}</a>
-                    <a href="/logout">Logout</a> -->
-                <!-- </div> -->
-                
                 <p class="lead text-muted">Something short and leading about the collection below—its contents, the creator, etc. Make it short and sweet, but not too short so folks don’t simply skip over it entirely.</p>
                 <p>
                     <a href="#" class="btn btn-primary my-2">Main call to action</a>
@@ -84,15 +106,14 @@
             </div>
         </div>
     </section>
-
     <div class="album py-5 bg-light">
         <div class="container">
 
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
                 {{range .Products}}
                 <div class="col">
                     <div class="card shadow-sm">
-                        <img src="https://images.theconversation.com/files/45159/original/rptgtpxd-1396254731.jpg?ixlib=rb-1.1.0&q=45&auto=format&w=1356&h=668&fit=crop" alt="">
+                        <img src="https://images.theconversation.com/files/45159/original/rptgtpxd-1396254731.jpg?ixlib=rb-1.1.0&q=45&auto=format&w=1356&h=668&fit=crop" height=auto, width="auth" alt="">
                         <div class="card-body">
             
                             <h2>{{.Name}}</h2>
@@ -123,6 +144,11 @@
         </p>
     </div>
 </footer>
+  <!-- jQuery + Bootstrap JS -->
+  
 <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta1/js/bootstrap.min.js"></script>
+
 </body>
 </html>

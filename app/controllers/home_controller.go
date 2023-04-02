@@ -1,3 +1,4 @@
+// `home_controller.go`
 package controllers
 
 import (
@@ -23,7 +24,7 @@ type Product struct {
 	Price       float64
 }
 
-// --------------------------------------------------
+// -----------------Search------------------
 func searchHandler(w http.ResponseWriter, r *http.Request) {
 	minPrice := r.URL.Query().Get("min_price")
 	maxPrice := r.URL.Query().Get("max_price")
@@ -48,7 +49,6 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 	rows, err := db.Query("SELECT id, name, description, price FROM products WHERE name LIKE $1 "+filterClause, "%"+query+"%")
 
-	// rows, err := db.Query("SELECT id, name, description, price FROM products WHERE name LIKE $1", "%"+query+"%")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -86,21 +86,21 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, "register")
 }
 
-// --------------------------------------------------
+// ------------RegisterAuth-------------------------
 func RegisterAuth(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("RegisterAuthHandler running")
 
 	Fname := r.FormValue("first_name")
 	Lname := r.FormValue("last_name")
-	email := r.FormValue("email")
+	Email := r.FormValue("email")
 	Password := r.FormValue("password")
 
-	if !validateemail(email) {
+	if !validateemail(Email) {
 		http.Error(w, "Invalid email format", http.StatusBadRequest)
 		return
 	}
 
-	if err := ValidateRegistrationForm(Fname, Lname, email, Password); err != nil {
+	if err := ValidateRegistrationForm(Fname, Lname, Email, Password); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -118,7 +118,7 @@ func RegisterAuth(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	insert, err := db.Query(fmt.Sprintf("INSERT INTO users (id, first_name, last_name, email, password) VALUES(DEFAULT, '%s', '%s', '%s', '%s')", Fname, Lname, email, hashedPassword))
+	insert, err := db.Query(fmt.Sprintf("INSERT INTO users (id, first_name, last_name, email, password) VALUES(DEFAULT, '%s', '%s', '%s', '%s')", Fname, Lname, Email, hashedPassword))
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -127,10 +127,11 @@ func RegisterAuth(w http.ResponseWriter, r *http.Request) {
 	defer insert.Close()
 
 	fmt.Println("Successfully Registered")
-	http.Redirect(w, r, "/login", http.StatusSeeOther)
+	http.Redirect(w, r, "/login?alert=success1", http.StatusSeeOther)
+	fmt.Fprintf(w, "<script>alert('You are registered sucsesfully!')</script>")
+
 }
 
-// --------------------------------------------------
 func ValidateRegistrationForm(fname, lname, email, password string) error {
 
 	if fname == "" || lname == "" {
@@ -147,19 +148,18 @@ func ValidateRegistrationForm(fname, lname, email, password string) error {
 	return nil
 }
 
-// --------------------------------------------------
-func validateemail(email string) bool {
+func validateemail(Email string) bool {
 	regex := regexp.MustCompile(`^[^@\s]+@[^@\s]+\.[^@\s]{2,}$`)
-	return regex.MatchString(email)
+	return regex.MatchString(Email)
 }
 
 type User struct {
 	FirstName string
 	LastName  string
-	email     string
+	Email     string
 }
 
-// --------------------------------------------------
+// ---------------Login----------------------------------
 func Login(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Login running")
 	t, err := template.ParseFiles("templates/login.html")
@@ -169,7 +169,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, "login")
 }
 
-// --------------------------------------------------
+// -------------Logout-------------------------
 func Logout(w http.ResponseWriter, r *http.Request) {
 	session, err := store.Get(r, "session-name")
 	if err != nil {
@@ -185,12 +185,12 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
-// --------------------------------------------------
+// --------------Loginaut----------------------------
 func LoginAuth(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("LoginAuthHandler running")
 	r.ParseForm()
 
-	email := r.FormValue("email")
+	Email := r.FormValue("email")
 	Password := r.FormValue("password")
 
 	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
@@ -200,10 +200,10 @@ func LoginAuth(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	var fname, lname, hashedPassword string
-	err = db.QueryRow("SELECT first_name, last_name, password FROM users WHERE email = $1", email).Scan(&fname, &lname, &hashedPassword)
+	err = db.QueryRow("SELECT first_name, last_name, password FROM users WHERE email = $1", Email).Scan(&fname, &lname, &hashedPassword)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			fmt.Fprintln(w, "Password or email incorrect!")
+			http.Error(w, "Email address is not registered", http.StatusUnauthorized)
 			return
 		}
 		log.Fatal(err)
@@ -211,7 +211,7 @@ func LoginAuth(w http.ResponseWriter, r *http.Request) {
 
 	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(Password))
 	if err != nil {
-		fmt.Fprintln(w, "Password or email incorrect!")
+		http.Error(w, "Incorrect password", http.StatusUnauthorized)
 		return
 	}
 
@@ -224,7 +224,7 @@ func LoginAuth(w http.ResponseWriter, r *http.Request) {
 	user := User{
 		FirstName: fname,
 		LastName:  lname,
-		email:     email,
+		Email:     Email,
 	}
 	session.Values["user"] = user
 	err = session.Save(r, w)
@@ -236,8 +236,6 @@ func LoginAuth(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/home_page", http.StatusSeeOther)
 }
 
-// --------------------------------------------------
-// var products = []Product{}
 type HomePageData struct {
 	User     User
 	Products []Product
@@ -303,14 +301,162 @@ func Home_page(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// --------Profile---------------------------
+
+type UserInfo struct {
+	FirstName string
+	LastName  string
+	Email     string
+}
+
+func Profile(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, "session-name")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	user, ok := session.Values["user"].(User)
+	if !ok {
+		// session doesn't exist or user information is not stored
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	t, err := template.ParseFiles("templates/profile.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	userInfo := UserInfo{
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Email:     user.Email,
+	}
+
+	err = t.Execute(w, userInfo)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+func EditProfile(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, "session-name")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	user, ok := session.Values["user"].(User)
+	if !ok {
+		// session doesn't exist or user information is not stored
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	t, err := template.ParseFiles("templates/edit_profile.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	userInfo := UserInfo{
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Email:     user.Email,
+	}
+
+	err = t.Execute(w, userInfo)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+func ValidateEditProfileForm(fname, lname, email, password string) error {
+
+	if fname == "" || lname == "" {
+		return errors.New("Firstname and last name are required")
+	}
+
+	if email == "" {
+		return errors.New("Email is required")
+	}
+
+	return nil
+}
+
+func UpdateProfile(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, "session-name")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	user, ok := session.Values["user"].(User)
+	if !ok {
+		// session doesn't exist or user information is not stored
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	Fname := r.FormValue("first_name")
+	Lname := r.FormValue("last_name")
+	Email := r.FormValue("email")
+	Password := r.FormValue("password")
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(Password), bcrypt.DefaultCost)
+
+	if !validateemail(Email) {
+		http.Error(w, "Invalid email format", http.StatusBadRequest)
+		return
+	}
+
+	if err := ValidateEditProfileForm(Fname, Lname, Email, ""); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	_, err = db.Query(fmt.Sprintf("UPDATE users SET first_name='%s', last_name='%s', email='%s', password='%s' WHERE email='%s'", Fname, Lname, Email, hashedPassword, user.Email))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	session.Values["user"] = User{
+		FirstName: Fname,
+		LastName:  Lname,
+		Email:     Email,
+	}
+	err = session.Save(r, w)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/profile?alert=success", http.StatusSeeOther)
+	fmt.Fprintf(w, "<script>alert(' Your information has been changed successfully!.')</script>")
+}
+
+// --------HandlerRequest-------------------
+
 func HandlerRequest() {
 
 	http.HandleFunc("/home_page/", Home_page)
 	http.HandleFunc("/login/", Login)
-	http.HandleFunc("/logout", Logout)
+	http.HandleFunc("/logout/", Logout)
 	http.HandleFunc("/loginauth/", LoginAuth)
 	http.HandleFunc("/registerauth/", RegisterAuth)
 	http.HandleFunc("/register/", Register)
 	http.HandleFunc("/search/", searchHandler)
+
+	http.HandleFunc("/profile/", Profile)
+	http.HandleFunc("/edit_profile/", EditProfile)
+	http.HandleFunc("/update_profile/", UpdateProfile)
+
 	http.ListenAndServe("localhost:8000", nil)
+
 }
