@@ -69,4 +69,32 @@ PostgreSQl DB,  `Table: products`
 +-------------+------------+--------+-----+------------+---------+
 ```
 
+
+***__Progress 7️⃣:__*** 
+
+In the seventh progression, we created user profile, and add profile menu,  edit, update profile functions
+ 
+|  ---                        |      __User profile__  |       ---               |
+|     ---                     |       ---              |       ---               |   
+| `/profile `                 | `/edit_profile`        | `/update_profile`       | 
+| view information about user | change information     | update inside database  | 
+
+
+
+ - [x] Nav profile menu (Profile page, setting, logout,)  
+     <img src="https://github.com/galymzhantolepbergen/galymzhantolepbergen/blob/main/jobs/menu.jpeg?raw=true" width="150px" height="auto" />
+ 
+ - [x] View all information about user(fname, lname, email,)
+ - [x] Edit all information about user(fname, lname, email, password)
+ - [x] Updated scripts( alerts for info such as successfully register, change information)
+ - [x] minimalize & clear  code, fixed issues
+
+<img src="https://github.com/galymzhantolepbergen/galymzhantolepbergen/blob/main/jobs/profile.jpeg?raw=true" width="500px" height="auto" />
+<img src="https://github.com/galymzhantolepbergen/galymzhantolepbergen/blob/main/jobs/edir_profile.jpeg?raw=true" width="500px" height="auto" />
+<img src="https://github.com/galymzhantolepbergen/galymzhantolepbergen/blob/main/jobs/update_profile.jpeg?raw=true" width="500px" height="auto" />
+
+
+
+
+
  
