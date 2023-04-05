@@ -51,6 +51,9 @@ PostgreSQl DB,  `Table: users`
 
  In the sixth progression, we created validation - firstname, lastname, password, email and hashing password.
  - [x] Validation for Register(Upper,small letters, numbers, min 8 symbols) 
+ - [x] Hashing password
+ 
+ ***__Progress 7️⃣:__*** 
  - [x] Filter prices(max, min)
  - [x] Logout seesin, cookie(without loggin, couldn't open home page even with link)
  - [x] User data in home page(shows after login, and his fname, lname)
@@ -70,9 +73,9 @@ PostgreSQl DB,  `Table: products`
 ```
 
 
-***__Progress 7️⃣:__*** 
+***__Progress 8:__*** 
 
-In the seventh progression, we created user profile, and add profile menu,  edit, update profile functions
+In the eighth progress, we created user profile, and add profile menu,  edit, update profile functions
  
 |  ---                        |      __User profile__  |       ---               |
 |     ---                     |       ---              |       ---               |   
