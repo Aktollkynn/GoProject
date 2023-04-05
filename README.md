@@ -73,7 +73,7 @@ PostgreSQl DB,  `Table: products`
 ```
 
 
-***__Progress 8:__*** 
+***__Progress 8️⃣:__*** 
 
 In the eighth progress, we created user profile, and add profile menu,  edit, update profile functions
  
