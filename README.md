@@ -55,7 +55,7 @@ PostgreSQl DB,  `Table: users`
  
  ***__Progress 7️⃣:__*** 
  - [x] Filter prices(max, min)
- - [x] Logout seesin, cookie(without loggin, couldn't open home page even with link)
+ - [x] Logout session, cookie(without loggin, couldn't open home page even with link)
  - [x] User data in home page(shows after login, and his fname, lname)
  - [x] Filter prices(max, min)
  - [x] Fixed issues
@@ -71,6 +71,19 @@ PostgreSQl DB,  `Table: products`
 | price       | integer    |        |     | Yes        |         |
 +-------------+------------+--------+-----+------------+---------+
 ```
+home_page
+
+<img src="https://github.com/galymzhantolepbergen/galymzhantolepbergen/blob/main/jobs/home_page.jpeg?raw=true" width="500px" height="auto" />
+products
+
+<img src="https://github.com/galymzhantolepbergen/galymzhantolepbergen/blob/main/jobs/items.jpeg?raw=true" width="500px" height="auto" />
+search and filer
+
+<img src="https://github.com/galymzhantolepbergen/galymzhantolepbergen/blob/main/jobs/search.jpeg?raw=true" width="500px" height="auto" />
+searching_results
+
+<img src="https://github.com/galymzhantolepbergen/galymzhantolepbergen/blob/main/jobs/searching_results.jpeg?raw=true" width="500px" height="auto" />
+
 
 
 ***__Progress 8️⃣:__*** 
