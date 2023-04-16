@@ -109,6 +109,9 @@ In the eighth progress, we created user profile, and add profile menu,  edit, up
 <img src="https://github.com/galymzhantolepbergen/galymzhantolepbergen/blob/main/jobs/edir_profile.jpeg?raw=true" width="500px" height="auto" />
 <img src="https://github.com/galymzhantolepbergen/galymzhantolepbergen/blob/main/jobs/update_profile.jpeg?raw=true" width="500px" height="auto" />
 
+***__Progress 9:__***
+In the ninth progression, we created a rating for products. Users can give a rating for each product, and the average product rating will be displayed on the page.
+
 
 
 
