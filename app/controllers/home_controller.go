@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/gorilla/sessions"
@@ -22,6 +23,7 @@ type Product struct {
 	Name        string
 	Description string
 	Price       float64
+	Rating      float64
 }
 
 // -----------------Search------------------
@@ -30,7 +32,6 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	maxPrice := r.URL.Query().Get("max_price")
 	query := r.URL.Query().Get("name")
 
-	// Add filter conditions
 	var filterConditions []string
 	if minPrice != "" {
 		filterConditions = append(filterConditions, fmt.Sprintf("price >= %s", minPrice))
@@ -42,7 +43,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	if len(filterConditions) > 0 {
 		filterClause = "AND " + strings.Join(filterConditions, " AND ")
 	}
-	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -111,14 +112,14 @@ func RegisterAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer db.Close()
 
-	insert, err := db.Query(fmt.Sprintf("INSERT INTO users (id, first_name, last_name, email, password) VALUES(DEFAULT, '%s', '%s', '%s', '%s')", Fname, Lname, Email, hashedPassword))
+	insert, err := db.Query(fmt.Sprintf("INSERT INTO users (first_name, last_name, email, password) VALUES('%s', '%s', '%s', '%s')", Fname, Lname, Email, hashedPassword))
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -193,7 +194,7 @@ func LoginAuth(w http.ResponseWriter, r *http.Request) {
 	Email := r.FormValue("email")
 	Password := r.FormValue("password")
 
-	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -255,7 +256,7 @@ func Home_page(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -413,7 +414,7 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -441,6 +442,63 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<script>alert(' Your information has been changed successfully!.')</script>")
 }
 
+func productDetailHandler(w http.ResponseWriter, r *http.Request) {
+
+	id := r.URL.Query().Get("id")
+
+	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	var p Product
+	//err = db.QueryRow("SELECT id, name, description, price FROM products WHERE id = $1", id).Scan(&p.ID, &p.Name, &p.Description, &p.Price)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	err = db.QueryRow("SELECT id, name, description, price, COALESCE((SELECT AVG(rating) FROM ratings WHERE product_id = $1), 0) as avg_rating FROM products WHERE id = $1", id).Scan(&p.ID, &p.Name, &p.Description, &p.Price, &p.Rating)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tmpl := template.Must(template.ParseFiles("templates/product_detail.html"))
+	tmpl.ExecuteTemplate(w, "product_detail", p)
+}
+func rateProductHandler(w http.ResponseWriter, r *http.Request) {
+
+	productID, err := strconv.Atoi(r.FormValue("product_id"))
+	if err != nil {
+		log.Printf("Error converting product_id: %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	rating, err := strconv.Atoi(r.FormValue("rating"))
+	if err != nil {
+		log.Printf("Error converting rating: %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
+	if err != nil {
+		log.Printf("Error opening database: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	_, err = db.Exec("INSERT INTO ratings (product_id, rating) VALUES ($1, $2)", productID, rating)
+	if err != nil {
+		log.Printf("Error inserting rating into database: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/product_detail/?id=%d", productID), http.StatusFound)
+}
+
 // --------HandlerRequest-------------------
 
 func HandlerRequest() {
@@ -456,6 +514,8 @@ func HandlerRequest() {
 	http.HandleFunc("/profile/", Profile)
 	http.HandleFunc("/edit_profile/", EditProfile)
 	http.HandleFunc("/update_profile/", UpdateProfile)
+	http.HandleFunc("/product_detail/", productDetailHandler)
+	http.HandleFunc("/rate_product/", rateProductHandler)
 
 	http.ListenAndServe("localhost:8000", nil)
 
