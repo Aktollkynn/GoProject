@@ -499,6 +499,64 @@ func rateProductHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/product_detail/?id=%d", productID), http.StatusFound)
 }
 
+type Commenting struct {
+	ID      int
+	Comment string
+}
+
+func CommentHandler(w http.ResponseWriter, r *http.Request) {
+	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	// Retrieve all comments from the database.
+	rows, err := db.Query("SELECT * FROM comments")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	comments := []Commenting{}
+
+	for rows.Next() {
+		var c Commenting
+		err := rows.Scan(&c.ID, &c.Comment)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		comments = append(comments, c)
+	}
+
+	t, err := template.ParseFiles("templates/product_detail.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	t.Execute(w, comments)
+}
+func AddCommentHandler(w http.ResponseWriter, r *http.Request) {
+	comment := r.FormValue("comment")
+
+	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	_, err = db.Exec("INSERT INTO comments (comment) VALUES ($1)", comment)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/comment", http.StatusSeeOther)
+}
+
 // --------HandlerRequest-------------------
 
 func HandlerRequest() {
@@ -510,6 +568,8 @@ func HandlerRequest() {
 	http.HandleFunc("/registerauth/", RegisterAuth)
 	http.HandleFunc("/register/", Register)
 	http.HandleFunc("/search/", searchHandler)
+	http.HandleFunc("/comment/", CommentHandler)
+	http.HandleFunc("/add_comment/", AddCommentHandler)
 
 	http.HandleFunc("/profile/", Profile)
 	http.HandleFunc("/edit_profile/", EditProfile)

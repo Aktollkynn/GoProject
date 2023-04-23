@@ -429,8 +429,8 @@
                         </div>
                         <div class="tab-pane fade" id="reviews">
                             <br/>
-                            <form method="post" class="well padding-bottom-10" onsubmit="return false;">
-                                <textarea rows="2" class="form-control" placeholder="Write a comment"></textarea>
+                            <form action="/add_comment/" method="post" class="well padding-bottom-10">
+                                <textarea id="comment" name="comment" rows="2" class="form-control" placeholder="Write a comment"></textarea>
                                 <div class="margin-top-10">
                                     <button type="submit" class="btn btn-sm btn-primary pull-right">
                                         Submit comment
@@ -445,7 +445,7 @@
                                 <ul>
                                     <li class="message">
                                         <img src="https://bootdey.com/img/Content/avatar/avatar1.png" class="online" />
-                                    <span class="message-text">
+                                        <span class="message-text">
                                         <a href="javascript:void(0);" class="username">Zarina:
 
                                              <span class="pull-right">
@@ -463,32 +463,40 @@
                                             </li>
                                         </ul>
                                     </li>
-                                    <br>
-                                    <li class="message">
-                                        <img src="https://bootdey.com/img/Content/avatar/avatar2.png" class="online" />
-                                        <span class="message-text">
-                                             <a href="" class="username">Aruzhan:
-                                                 <span class="pull-right">
-                                                 <i class="fa fa-star fa-2x text-primary"></i>
-                                                 <i class="fa fa-star fa-2x text-primary"></i>
-                                                 <i class="fa fa-star fa-2x text-primary"></i>
-                                                 <i class="fa fa-star fa-2x text-primary"></i>
-                                                 <i class="fa fa-star fa-2x text-primary"></i>
-                                                 </span>
-                                             </a>
-                                        Interesting book!
-                                        </span>
-                                        <ul class="list-inline font-xs">
-                                            <li class="pull-right">
-                                                <small class="text-muted pull-right ultra-light"> Posted 1 year ago </small>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                </ul>
+                                 </ul>
+                                <div class="comments">
+                                    {{ range . }}
+                                        <div>{{ .Comment }}</div>
+                                    {{ end }}
+                                </div>
+
+                                <script>
+                                    $(document).ready(function() {
+                                        $('.well padding-bottom-10 form').submit(function(event) {
+                                            event.preventDefault();
+                                            var formData = $(this).serialize();
+                                            $.ajax({
+                                                type: 'POST',
+                                                url: '/add_comment/',
+                                                data: formData,
+                                                success: function(response) {
+                                                    $('#comment').val('');
+                                                    $('.comments').append('<div>' + response.Comment + '</div>');
+                                                    location.reload();
+                                                },
+                                                error: function() {
+                                                    alert('Произошла ошибка при отправке комментария');
+                                                    console.log(response)
+                                                }
+                                            });
+                                        });
+                                    });
+                                </script>
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <hr/>
                 <div class="row">
                     <div class="col-sm-12 col-md-6 col-lg-6">
