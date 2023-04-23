@@ -114,7 +114,8 @@ In the ninth progression, we created product detail page and a rating for produc
 
 ![image](https://user-images.githubusercontent.com/82767082/232326055-c57b759c-3cee-4ec1-b7a8-4ccc1030270f.png)
 
-
+***__Progress 10:__***
+In the tenth progression, we created comments, so users can add comments for products
 
 
  
