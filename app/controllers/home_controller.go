@@ -43,7 +43,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	if len(filterConditions) > 0 {
 		filterClause = "AND " + strings.Join(filterConditions, " AND ")
 	}
-	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -112,7 +112,7 @@ func RegisterAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -194,7 +194,7 @@ func LoginAuth(w http.ResponseWriter, r *http.Request) {
 	Email := r.FormValue("email")
 	Password := r.FormValue("password")
 
-	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -256,7 +256,7 @@ func Home_page(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -414,7 +414,7 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -446,7 +446,7 @@ func productDetailHandler(w http.ResponseWriter, r *http.Request) {
 
 	id := r.URL.Query().Get("id")
 
-	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -461,7 +461,6 @@ func productDetailHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	tmpl := template.Must(template.ParseFiles("templates/product_detail.html"))
 	tmpl.ExecuteTemplate(w, "product_detail", p)
 }
@@ -481,7 +480,7 @@ func rateProductHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
 	if err != nil {
 		log.Printf("Error opening database: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -500,12 +499,14 @@ func rateProductHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type Commenting struct {
-	ID      int
-	Comment string
+	ID        int
+	Comment   string
+	Name      sql.NullString
+	ProductID int
 }
 
 func CommentHandler(w http.ResponseWriter, r *http.Request) {
-	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -524,7 +525,7 @@ func CommentHandler(w http.ResponseWriter, r *http.Request) {
 
 	for rows.Next() {
 		var c Commenting
-		err := rows.Scan(&c.ID, &c.Comment)
+		err := rows.Scan(&c.ID, &c.Comment, &c.Name)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -532,7 +533,7 @@ func CommentHandler(w http.ResponseWriter, r *http.Request) {
 		comments = append(comments, c)
 	}
 
-	t, err := template.ParseFiles("templates/product_detail.html")
+	t, err := template.ParseFiles("templates/comment.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -541,15 +542,21 @@ func CommentHandler(w http.ResponseWriter, r *http.Request) {
 }
 func AddCommentHandler(w http.ResponseWriter, r *http.Request) {
 	comment := r.FormValue("comment")
+	name := r.FormValue("name")
+	var nameNull sql.NullString
+	if name != "" {
+		nameNull.String = name
+		nameNull.Valid = true
+	}
 
-	db, err := sql.Open("postgres", "postgresql://postgres:online@localhost:5432/shop?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer db.Close()
 
-	_, err = db.Exec("INSERT INTO comments (comment) VALUES ($1)", comment)
+	_, err = db.Exec("INSERT INTO comments (comment,name) VALUES ($1, $2)", comment, nameNull)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
