@@ -117,5 +117,9 @@ In the ninth progression, we created product detail page and a rating for produc
 ***__Progress 10:__***
 In the tenth progression, we created comments, so users can add comments for products
 
+***__Midterm 2:__***
+ We made a page to add and improve comments function, filtering by price and product rating. In addition to comments, the user can give ratings to books.
+![image](https://user-images.githubusercontent.com/91051893/234130380-3b1d008b-c878-4ca7-8ed9-6217bcf056b2.png)
+![image](https://user-images.githubusercontent.com/91051893/234130414-57f2b733-3469-4c9c-b1a2-484f8e4b7559.png)
+![image](https://user-images.githubusercontent.com/91051893/234130939-95caccf5-86c7-457d-8a82-d0df77bb1cc4.png)
 
- 
