@@ -123,11 +123,6 @@
   <h1>Comments</h1>
   <div class="comments">
     {{ range . }}
-{{/*      <div>{{ .Comment }}*/}}
-{{/*        {{ if .Name.Valid }} :*/}}
-{{/*          {{ .Name.String }}*/}}
-{{/*        {{ end }}*/}}
-{{/*      </div>*/}}
         <div>
           {{ if .Name.Valid }}
             {{ .Name.String }} :

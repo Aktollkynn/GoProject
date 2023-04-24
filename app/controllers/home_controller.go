@@ -499,10 +499,9 @@ func rateProductHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type Commenting struct {
-	ID        int
-	Comment   string
-	Name      sql.NullString
-	ProductID int
+	ID      int
+	Comment string
+	Name    sql.NullString
 }
 
 func CommentHandler(w http.ResponseWriter, r *http.Request) {
@@ -513,7 +512,6 @@ func CommentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	// Retrieve all comments from the database.
 	rows, err := db.Query("SELECT * FROM comments")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
