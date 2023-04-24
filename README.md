@@ -119,3 +119,4 @@ In the tenth progression, we created comments, so users can add comments for pro
 
 ***__Midterm 2:__***
  We made a page to add and improve comments function, filtering by price and product rating. In addition to comments, the user can give ratings to books.
+https://docs.google.com/document/d/1rHcuWQ5e4GEV50PFO9r3s69sQSyI9PJ-mJjl5s7glVE/edit
