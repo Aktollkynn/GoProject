@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Publishing items</title>
+</head>
+<body>
+<div class="insert_product">
+  <form action="/insert_product/" method="post">
+    <h1>Publishing item</h1>
+    <div class="form-group">
+      <div class="row">
+        <div class="col"><input type="text" class="form-control" name="name" placeholder="name" required="required"></div>
+        <div class="col"><input type="text" class="form-control" name="description" placeholder="description" required="required"></div>
+        <div class="col"><input type="number" class="form-control" name="price" placeholder="price" required="required"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <button type="submit" class="btn btn-success btn-lg btn-block">Add products</button>
+    </div>
+  </form>
+</body>
+</html>

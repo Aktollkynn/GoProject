@@ -1,4 +1,3 @@
-// `home_controller.go`
 package controllers
 
 import (
@@ -17,14 +16,6 @@ import (
 	_ "github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
 )
-
-type Product struct {
-	ID          int
-	Name        string
-	Description string
-	Price       float64
-	Rating      float64
-}
 
 // -----------------Search------------------
 func searchHandler(w http.ResponseWriter, r *http.Request) {
@@ -76,7 +67,6 @@ var store = sessions.NewCookieStore([]byte("super-secret-key"))
 func init() {
 	gob.Register(User{})
 }
-
 func Register(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Register running")
 
@@ -87,7 +77,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, "register")
 }
 
-// ------------RegisterAuth-------------------------
+// ------------RegisterAuth------------------------
 func RegisterAuth(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("RegisterAuthHandler running")
 
@@ -132,7 +122,6 @@ func RegisterAuth(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<script>alert('You are registered sucsesfully!')</script>")
 
 }
-
 func ValidateRegistrationForm(fname, lname, email, password string) error {
 
 	if fname == "" || lname == "" {
@@ -148,7 +137,6 @@ func ValidateRegistrationForm(fname, lname, email, password string) error {
 
 	return nil
 }
-
 func validateemail(Email string) bool {
 	regex := regexp.MustCompile(`^[^@\s]+@[^@\s]+\.[^@\s]{2,}$`)
 	return regex.MatchString(Email)
@@ -303,7 +291,6 @@ func Home_page(w http.ResponseWriter, r *http.Request) {
 }
 
 // --------Profile---------------------------
-
 type UserInfo struct {
 	FirstName string
 	LastName  string
@@ -384,7 +371,6 @@ func ValidateEditProfileForm(fname, lname, email, password string) error {
 
 	return nil
 }
-
 func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	session, err := store.Get(r, "session-name")
 	if err != nil {
@@ -442,8 +428,17 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<script>alert(' Your information has been changed successfully!.')</script>")
 }
 
-func productDetailHandler(w http.ResponseWriter, r *http.Request) {
+// --------Product---------------------------
+type Product struct {
+	ID          int
+	Name        string
+	Description string
+	Price       float64
+	Rating      float64
+	Comments    []Commenting
+}
 
+func productDetailHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 
 	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
@@ -453,14 +448,26 @@ func productDetailHandler(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	var p Product
-	//err = db.QueryRow("SELECT id, name, description, price FROM products WHERE id = $1", id).Scan(&p.ID, &p.Name, &p.Description, &p.Price)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
 	err = db.QueryRow("SELECT id, name, description, price, COALESCE((SELECT AVG(rating) FROM ratings WHERE product_id = $1), 0) as avg_rating FROM products WHERE id = $1", id).Scan(&p.ID, &p.Name, &p.Description, &p.Price, &p.Rating)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	rows, err := db.Query("SELECT id, product_id, comment FROM commenting WHERE product_id = $1", id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var c Commenting
+		err := rows.Scan(&c.ID, &c.ProductID, &c.Comment)
+		if err != nil {
+			log.Fatal(err)
+		}
+		p.Comments = append(p.Comments, c)
+	}
+
 	tmpl := template.Must(template.ParseFiles("templates/product_detail.html"))
 	tmpl.ExecuteTemplate(w, "product_detail", p)
 }
@@ -498,40 +505,38 @@ func rateProductHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/product_detail/?id=%d", productID), http.StatusFound)
 }
 
+// --------Comment---------------------------
 type Commenting struct {
-	ID      int
-	Comment string
-	Name    sql.NullString
+	ID        int
+	Comment   string
+	ProductID int
 }
 
 func CommentHandler(w http.ResponseWriter, r *http.Request) {
+	productID := r.URL.Query().Get("id")
 	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer db.Close()
-
-	rows, err := db.Query("SELECT * FROM comments")
+	rows, err := db.Query("SELECT * FROM commenting WHERE product_id = $1", productID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer rows.Close()
-
 	comments := []Commenting{}
-
 	for rows.Next() {
 		var c Commenting
-		err := rows.Scan(&c.ID, &c.Comment, &c.Name)
+		err := rows.Scan(&c.ID, &c.Comment, &c.ProductID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		comments = append(comments, c)
 	}
-
-	t, err := template.ParseFiles("templates/comment.html")
+	t, err := template.ParseFiles("templates/product_detail.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -540,30 +545,52 @@ func CommentHandler(w http.ResponseWriter, r *http.Request) {
 }
 func AddCommentHandler(w http.ResponseWriter, r *http.Request) {
 	comment := r.FormValue("comment")
-	name := r.FormValue("name")
-	var nameNull sql.NullString
-	if name != "" {
-		nameNull.String = name
-		nameNull.Valid = true
+	productIDStr := r.FormValue("product_id")
+	productID, err := strconv.Atoi(productIDStr)
+	if err != nil {
+		http.Error(w, "Invalid product ID", http.StatusBadRequest)
+		return
 	}
-
 	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer db.Close()
-
-	_, err = db.Exec("INSERT INTO comments (comment,name) VALUES ($1, $2)", comment, nameNull)
+	_, err = db.Exec("INSERT INTO commenting (comment, product_id) VALUES ($1, $2)", comment, productID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, "/comment", http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/product_detail/?id=%d", productID), http.StatusFound)
+}
+
+// --------Publishing---------------------------
+func AddProductHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.ParseFiles("templates/add_product.html"))
+	tmpl.Execute(w, nil)
+}
+func InsertProductHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		name := r.FormValue("name")
+		description := r.FormValue("description")
+		price := r.FormValue("price")
+		db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer db.Close()
+		_, err = db.Exec("INSERT INTO products (name, description, price) VALUES ($1, $2, $3)", name, description, price)
+		if err != nil {
+			log.Fatal(err)
+		}
+		http.Redirect(w, r, "/add_product/", http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/add_product/", http.StatusSeeOther)
 }
 
 // --------HandlerRequest-------------------
-
 func HandlerRequest() {
 
 	http.HandleFunc("/home_page/", Home_page)
@@ -575,6 +602,8 @@ func HandlerRequest() {
 	http.HandleFunc("/search/", searchHandler)
 	http.HandleFunc("/comment/", CommentHandler)
 	http.HandleFunc("/add_comment/", AddCommentHandler)
+	http.HandleFunc("/add_product/", AddProductHandler)
+	http.HandleFunc("/insert_product/", InsertProductHandler)
 
 	http.HandleFunc("/profile/", Profile)
 	http.HandleFunc("/edit_profile/", EditProfile)
