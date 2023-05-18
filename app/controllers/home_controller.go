@@ -711,6 +711,16 @@ func Data_info(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func Welcome(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Welcome running")
+
+	t, err := template.ParseFiles("templates/welcome.html")
+	if err != nil {
+		fmt.Fprintf(w, err.Error())
+	}
+	t.Execute(w, "welcome")
+}
+
 // --------HandlerRequest-------------------
 func HandlerRequest() {
 
@@ -732,6 +742,7 @@ func HandlerRequest() {
 	http.HandleFunc("/edit_profile/", EditProfile)
 	http.HandleFunc("/update_profile/", UpdateProfile)
 	http.HandleFunc("/data_info/", Data_info)
+	http.HandleFunc("/welcome/", Welcome)
 
 	http.ListenAndServe("localhost:8000", nil)
 
