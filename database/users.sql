@@ -1,16 +1,14 @@
-
 -- Table: public.users
 
 -- DROP TABLE IF EXISTS public.users;
 
 CREATE TABLE IF NOT EXISTS public.users
 (
-    first_name character varying(50) COLLATE pg_catalog."default" NOT NULL,
-    last_name character varying(50) COLLATE pg_catalog."default" NOT NULL,
-    email character varying(355) COLLATE pg_catalog."default" NOT NULL,
-    password character varying(50) COLLATE pg_catalog."default" NOT NULL,
-    id integer NOT NULL DEFAULT 'nextval('users_id_seq'::regclass)',
-    CONSTRAINT users_pkey PRIMARY KEY (id)
+    first_name character varying COLLATE pg_catalog."default",
+    last_name character varying COLLATE pg_catalog."default",
+    email character varying COLLATE pg_catalog."default",
+    password character varying COLLATE pg_catalog."default",
+    id integer
 )
 
 TABLESPACE pg_default;
