@@ -8,10 +8,6 @@ require (
 	golang.org/x/crypto v0.7.0
 )
 
-require (
-	github.com/go-chi/chi v1.5.4 // indirect
-	github.com/gorilla/mux v1.8.0 // indirect
-	github.com/gorilla/securecookie v1.1.1 // indirect
-)
+require github.com/gorilla/securecookie v1.1.1 // indirect
 
 // require github.com/golang-jwt/jwt v3.2.2+incompatible // indirect

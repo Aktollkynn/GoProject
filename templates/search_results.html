@@ -73,6 +73,15 @@
                             <input type="number" id="min-price" name="min_price" placeholder="0" style="width: 100px; border-radius: 5px;">
                             <label for="max-price">Max price:</label>
                             <input type="number" id="max-price" name="max_price" placeholder="999999" style="width: 100px; border-radius: 5px;">
+                            <label for="rating">Rating:</label>
+                            <select id="rating" name="rating" style="height: 27px; border-radius: 5px;">
+                                <option value="">All</option>
+                                <option value="1.0">1 star</option>
+                                <option value="2.0">2 stars</option>
+                                <option value="3.0">3 stars</option>
+                                <option value="4.0">4 stars</option>
+                                <option value="5.0">5 stars</option>
+                            </select>
                             <button type="submit" style="border-radius: 5px; background-color: #fff; border: none; padding: 2px;">
                                 <svg width="20px" height="20px" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="none">
                                     <path fill="#000000" fill-rule="evenodd" d="M4 9a5 5 0 1110 0A5 5 0 014 9zm5-7a7 7 0 104.2 12.6.999.999 0 00.093.107l3 3a1 1 0 001.414-1.414l-3-3a.999.999 0 00-.107-.093A7 7 0 009 2z"/>
@@ -83,39 +92,40 @@
                     </div>
                 </header>
 
-<div class="album py-5 bg-light">
-    <div class="container">
-        <h2 class="text-center mb-4">Search results:</h2>
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
-            {{range .}}
-            <div class="col">
-                <div class="card shadow-sm">
-                    <img src="https://images.theconversation.com/files/45159/original/rptgtpxd-1396254731.jpg?ixlib=rb-1.1.0&q=45&auto=format&w=1356&h=668&fit=crop" alt="">
-                    <div class="card-body">
-                        {{if .}}
-                        <div class="product">
-                            <h2>{{.Name}}</h2>
-                            <p>{{.Description}}</p>
-                            <p>Price: {{.Price}} tenge</p>
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary">Add to cart</button>
+                <div class="album py-5 bg-light">
+                    <div class="container">
+                        <h2 class="text-center mb-4">Search results:</h2>
+                        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
+                            {{range .}}
+                            <div class="col">
+                                <div class="card shadow-sm">
+                                    <img src="https://images.theconversation.com/files/45159/original/rptgtpxd-1396254731.jpg?ixlib=rb-1.1.0&q=45&auto=format&w=1356&h=668&fit=crop" alt="">
+                                    <div class="card-body">
+                                        {{if .}}
+                                        <div class="product">
+                                            <h2>{{.Name}}</h2>
+                                            <p><strong>Description: </strong> {{.Description}}</p>
+                                            <p style="color:rgb(4, 4, 123);"><strong>Price: </strong> {{.Price}} tenge</p>
+                                            <p style="color:rgb(123, 32, 4);"><strong>Avg Rating: </strong> {{ .Rating }} </p>
+                                        </div>
+                
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="btn-group">
+                                                <a style="background-color: rgb(4, 4, 123); color: aliceblue;" href="/product_detail?id={{ .ID }}" class="btn btn-sm btn-outline-secondary">View</a>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary">Add to cart</button>
+                                            </div>
+                                            <small class="text-muted">time: .. mins</small>
+                                        </div>
+                                        {{end}}
+                                    </div>
+                                </div>
                             </div>
-                            <small class="text-muted">9 mins</small>
+                            {{else}}
+                            <p class="text-center">No results found</p>
+                            {{end}}
                         </div>
-                        {{end}}
                     </div>
                 </div>
-            </div>
-            {{else}}
-            <p class="text-center">No results found</p>
-            {{end}}
-        </div>
-    </div>
-</div>
 <footer class="text-muted py-5">
     <div class="container">
         <p class="float-end mb-1">

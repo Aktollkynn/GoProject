@@ -34,7 +34,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	if len(filterConditions) > 0 {
 		filterClause = "AND " + strings.Join(filterConditions, " AND ")
 	}
-	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -102,7 +102,7 @@ func RegisterAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -182,7 +182,7 @@ func LoginAuth(w http.ResponseWriter, r *http.Request) {
 	Email := r.FormValue("email")
 	Password := r.FormValue("password")
 
-	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -244,7 +244,7 @@ func Home_page(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -400,7 +400,7 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -441,7 +441,7 @@ type Product struct {
 func productDetailHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 
-	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -487,7 +487,7 @@ func rateProductHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		log.Printf("Error opening database: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -514,7 +514,7 @@ type Commenting struct {
 
 func CommentHandler(w http.ResponseWriter, r *http.Request) {
 	productID := r.URL.Query().Get("id")
-	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -551,7 +551,7 @@ func AddCommentHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid product ID", http.StatusBadRequest)
 		return
 	}
-	db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -575,7 +575,7 @@ func InsertProductHandler(w http.ResponseWriter, r *http.Request) {
 		name := r.FormValue("name")
 		description := r.FormValue("description")
 		price := r.FormValue("price")
-		db, err := sql.Open("postgres", "postgresql://postgres:aktolkyn@localhost:5432/postgres?sslmode=disable")
+		db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
 		if err != nil {
 			log.Fatal(err)
 		}
