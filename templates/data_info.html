@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Data Page</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://getbootstrap.com/docs/5.3/examples/product/product.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta1/css/bootstrap.min.css">
+
+  <style>
+    table {
+      margin-left: 5%;
+      border-collapse: collapse;
+      width: 80%;
+    }
+    th, td {
+      border: 1px solid black;
+      border-radius: 8%;
+      padding: 4px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    h1{
+      margin-left: 45%;
+    }
+    h2{
+      margin-left: 5%;
+      color: darkgreen;
+    }
+    p{
+      margin-left: 5%;
+      color:darkblue
+    }
+  </style>
+</head>
+
+<body>
+  <header class="p-3 bg-dark text-white">
+    
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="home_page" class="navbar-brand d-flex align-items-center me-3">
+             <svg fill="#ffffff" height="30px" width="30x" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 511 511" xml:space="preserve" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path d="M503.5,440H479V207.433c13.842-3.487,24-16.502,24-31.933v-104c0-8.547-6.953-15.5-15.5-15.5h-464 C14.953,56,8,62.953,8,71.5v104c0,15.432,10.158,28.446,24,31.933V440H7.5c-4.142,0-7.5,3.358-7.5,7.5s3.358,7.5,7.5,7.5h496 c4.142,0,7.5-3.358,7.5-7.5S507.642,440,503.5,440z M488,71.5v104c0,9.383-6.999,17.384-15.602,17.834 c-4.595,0.235-8.939-1.36-12.254-4.505c-3.317-3.148-5.145-7.4-5.145-11.971V71h32.5C487.776,71,488,71.224,488,71.5z M71,71h33 v105.858c0,9.098-7.402,16.5-16.5,16.5s-16.5-7.402-16.5-16.5V71z M119,71h33v105.858c0,9.098-7.402,16.5-16.5,16.5 s-16.5-7.402-16.5-16.5V71z M167,71h33v105.858c0,9.098-7.402,16.5-16.5,16.5s-16.5-7.402-16.5-16.5V71z M215,71h33v105.858 c0,9.098-7.402,16.5-16.5,16.5s-16.5-7.402-16.5-16.5V71z M263,71h33v105.858c0,9.098-7.402,16.5-16.5,16.5s-16.5-7.402-16.5-16.5 V71z M311,71h33v105.858c0,9.098-7.402,16.5-16.5,16.5s-16.5-7.402-16.5-16.5V71z M359,71h33v105.858c0,9.098-7.402,16.5-16.5,16.5 s-16.5-7.402-16.5-16.5V71z M407,71h33v105.858c0,9.098-7.402,16.5-16.5,16.5s-16.5-7.402-16.5-16.5V71z M23,175.5v-104 c0-0.276,0.224-0.5,0.5-0.5H56v105.858c0,4.571-1.827,8.823-5.145,11.971c-3.314,3.146-7.663,4.743-12.254,4.505 C29.999,192.884,23,184.883,23,175.5z M47,207.462c5.266-1.279,10.128-3.907,14.181-7.753c0.822-0.78,1.599-1.603,2.326-2.462 c5.782,6.793,14.393,11.11,23.993,11.11c9.604,0,18.218-4.32,24-11.119c5.782,6.799,14.396,11.119,24,11.119s18.218-4.32,24-11.119 c5.782,6.799,14.396,11.119,24,11.119s18.218-4.32,24-11.119c5.782,6.799,14.396,11.119,24,11.119s18.218-4.32,24-11.119 c5.782,6.799,14.396,11.119,24,11.119s18.218-4.32,24-11.119c5.782,6.799,14.396,11.119,24,11.119s18.218-4.32,24-11.119 c5.782,6.799,14.396,11.119,24,11.119s18.218-4.32,24-11.119c5.782,6.799,14.396,11.119,24,11.119c9.6,0,18.21-4.317,23.993-11.11 c0.728,0.859,1.504,1.682,2.326,2.462c4.054,3.847,8.914,6.482,14.181,7.761V440h-33V263.5c0-8.547-6.953-15.5-15.5-15.5h-96 c-8.547,0-15.5,6.953-15.5,15.5V440H47V207.462z M416,440h-97V263.5c0-0.276,0.224-0.5,0.5-0.5h96c0.276,0,0.5,0.224,0.5,0.5V440z"></path> <path d="M343.5,336c-4.142,0-7.5,3.358-7.5,7.5v16c0,4.142,3.358,7.5,7.5,7.5s7.5-3.358,7.5-7.5v-16 C351,339.358,347.642,336,343.5,336z"></path> <path d="M262.5,248h-174c-4.687,0-8.5,3.813-8.5,8.5v142c0,4.687,3.813,8.5,8.5,8.5h174c4.687,0,8.5-3.813,8.5-8.5v-142 C271,251.813,267.187,248,262.5,248z M256,392H95V263h161V392z"></path> </g> </g></svg>
+                <strong> Go Store</strong>
+            </a>
+
+            <ul class="nav col-lg-auto mb-2 justify-content-center mb-md-0 align-items-center">
+              <li><a href="/home_page" class="nav-link px-2 text-white ">Home</a></li>
+              <li><a href="/add_product" class="nav-link px-2 text-white ">Publishing item</a></li>
+              <li><a href="#" class="nav-link px-2 text-white">Pricing</a></li>
+              <li><a href="/data_info" class="nav-link px-2 text-secondary">Data</a></li>
+              <li><a href="#" class="nav-link px-2 text-white">About</a></li>
+            </ul>
+            
+            <!-- Logout item -->
+            <nav class="navbar navbar-expand-lg navbar-dark" style="margin-right: -25%;">
+                <div class="container-fluid">
+                  <ul class="navbar-nav">
+
+                    <!-- Avatar -->
+                    <li class="nav-item dropdown">
+                      <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="https://img.freepik.com/free-icon/waiter_318-505999.jpg" class="rounded-circle" height="40" alt="Avatar" loading="lazy" /> 
+                      </a>
+                      <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <li>
+                          <a class="dropdown-item" href="/profile">My profile</a>
+                        </li>
+                        <li>
+                          <a class="dropdown-item" href="#">Settings</a>
+                        </li>
+                        <li>
+                          <a class="dropdown-item" href="/logout">Logout</a>
+                        </li>
+                      </ul>
+                    </li>
+
+                  </ul>
+                </div>
+              </nav>
+            <div class="text-end">
+                
+                <a href="/logout">
+                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="20px" height="30px" fill="#FFBF00" viewBox="0 0 91.839 122.88" enable-background="new 0 0 91.839 122.88" xml:space="preserve">
+                    <g><path d="M81.75,64.617H41.365c-1.738,0-3.147-1.423-3.147-3.178c0-1.756,1.409-3.179,3.147-3.179h40.383L68.559,43.155 c-1.146-1.31-1.025-3.311,0.271-4.469c1.297-1.159,3.278-1.037,4.425,0.273l17.798,20.383c1.065,1.216,1.037,3.029-0.011,4.21 L73.254,83.92c-1.146,1.311-3.128,1.433-4.425,0.273c-1.296-1.158-1.417-3.16-0.271-4.47L81.75,64.617L81.75,64.617z M70.841,99.629c0-1.756,1.423-3.179,3.178-3.179c1.756,0,3.179,1.423,3.179,3.179v14.242c0,2.475-1.017,4.729-2.648,6.36 c-1.633,1.632-3.887,2.648-6.36,2.648H9.009c-2.475,0-4.73-1.014-6.363-2.646C1.016,118.603,0,116.352,0,113.871V9.009 c0-2.48,1.013-4.733,2.644-6.365C4.275,1.013,6.528,0,9.009,0h59.18c2.479,0,4.731,1.016,6.362,2.646 c1.633,1.633,2.646,3.889,2.646,6.363V23.25c0,1.755-1.423,3.178-3.179,3.178c-1.755,0-3.178-1.423-3.178-3.178V9.009 c0-0.722-0.301-1.385-0.785-1.869c-0.482-0.482-1.144-0.783-1.867-0.783H9.009c-0.726,0-1.389,0.3-1.87,0.782 C6.656,7.62,6.357,8.283,6.357,9.009v104.862c0,0.724,0.301,1.385,0.783,1.867c0.484,0.484,1.147,0.785,1.869,0.785h59.18 c0.72,0,1.381-0.302,1.865-0.786c0.485-0.484,0.787-1.146,0.787-1.866V99.629L70.841,99.629z"/></g></svg>
+                </a>
+            </div>
+        </div>         
+    </div>
+</header>
+<br>
+  <h1>Data Page</h1>
+  <h2>Users</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Surname</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Users}}
+      <tr>
+        <td>{{.FirstName}}</td>
+        <td>{{.LastName}}</td>
+        <td>{{.Email}}</td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+  <p id="userCount">Total Users: {{len .Users}}</p>
+
+  <h2>Products</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Price</th>
+        <th>Rating</th>
+        <th>Comments</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Products}}
+      <tr>
+        <td>{{.ID}}</td>
+        <td>{{.Name}}</td>
+        <td>{{.Description}}</td>
+        <td>{{.Price}}</td>
+        <!-- <td>{{.Rating}}</td> -->
+        <td>
+          <ul>
+            {{range .Comments}}
+            <li>{{.Comment}}</li>
+            {{end}}
+          </ul>
+        </td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+  <p id="productCount">Total Products: {{len .Products}}</p>
+
+  <h2>Comments</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Product ID</th>
+        <th>Comment</th>
+        <th>ID</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Commenting}}
+      <tr>
+        <td>{{.ProductID}}</td>
+        <td>{{.Comment}}</td>
+        <td>{{.ID}}</td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+  <p id="commentCount">Total Comments: {{len .Commenting}}</p>
+</body>
+</html>

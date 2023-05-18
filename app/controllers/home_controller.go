@@ -143,6 +143,7 @@ func validateemail(Email string) bool {
 }
 
 type User struct {
+	ID        int
 	FirstName string
 	LastName  string
 	Email     string
@@ -471,38 +472,61 @@ func productDetailHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.Must(template.ParseFiles("templates/product_detail.html"))
 	tmpl.ExecuteTemplate(w, "product_detail", p)
 }
-func rateProductHandler(w http.ResponseWriter, r *http.Request) {
-
-	productID, err := strconv.Atoi(r.FormValue("product_id"))
+func getUserIDFromSession(r *http.Request) (int, error) {
+	session, err := store.Get(r, "session-name")
 	if err != nil {
-		log.Printf("Error converting product_id: %v", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		return 0, err
+	}
+	user, ok := session.Values["user"].(User)
+	if !ok {
+		return 0, errors.New("User information not found in session")
+	}
+
+	return user.ID, nil
+}
+
+type Rating struct {
+	ID        int
+	ProductID int
+	Rating    float64
+}
+
+func rateProductHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := getUserIDFromSession(r)
+	if err != nil {
+		log.Printf("Error getting user ID from session: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	rating, err := strconv.Atoi(r.FormValue("rating"))
+	productID, err := strconv.Atoi(r.FormValue("product_id"))
 	if err != nil {
-		log.Printf("Error converting rating: %v", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		log.Printf("Error converting product ID to integer: %v", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	rating, err := strconv.ParseFloat(r.FormValue("rating"), 64)
+	if err != nil {
+		log.Printf("Error parsing rating value: %v", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
 	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
 	if err != nil {
-		log.Printf("Error opening database: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		log.Fatal(err)
 	}
 	defer db.Close()
 
-	_, err = db.Exec("INSERT INTO ratings (product_id, rating) VALUES ($1, $2)", productID, rating)
+	_, err = db.Exec("INSERT INTO ratings (user_id, product_id, rating, created_at) VALUES ($1, $2, $3,now())", userID, productID, rating)
 	if err != nil {
-		log.Printf("Error inserting rating into database: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("Error inserting rate into database: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/product_detail/?id=%d", productID), http.StatusFound)
+	http.Redirect(w, r, "/product_detail?id="+strconv.Itoa(productID), http.StatusSeeOther)
 }
 
 // --------Comment---------------------------
@@ -590,6 +614,103 @@ func InsertProductHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/add_product/", http.StatusSeeOther)
 }
 
+// --------DataInfo-------------------
+type DataInfo struct {
+	Users      []User
+	Products   []Product
+	Commenting []Commenting
+}
+
+func Data_info(w http.ResponseWriter, r *http.Request) {
+
+	db, err := sql.Open("postgres", "postgres://postgres:justice@localhost:5432/shop?sslmode=disable")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT first_name, last_name, email FROM users")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var users []User
+	for rows.Next() {
+		var user User
+		if err := rows.Scan(&user.FirstName, &user.LastName, &user.Email); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		users = append(users, user)
+	}
+	if err := rows.Err(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	rows, err = db.Query("SELECT id, name, description, price FROM products")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var products []Product
+	for rows.Next() {
+		var product Product
+		if err := rows.Scan(&product.ID, &product.Name, &product.Description, &product.Price); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		products = append(products, product)
+	}
+	if err := rows.Err(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	rows, err = db.Query("SELECT id, comment, product_id FROM commenting")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var commenting []Commenting
+	for rows.Next() {
+		var comment Commenting
+		if err := rows.Scan(&comment.ID, &comment.Comment, &comment.ProductID); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		commenting = append(commenting, comment)
+	}
+	if err := rows.Err(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data := DataInfo{
+		Users:      users,
+		Products:   products,
+		Commenting: commenting,
+	}
+	t, err := template.ParseFiles("templates/data_info.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = t.Execute(w, data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
 // --------HandlerRequest-------------------
 func HandlerRequest() {
 
@@ -599,17 +720,18 @@ func HandlerRequest() {
 	http.HandleFunc("/loginauth/", LoginAuth)
 	http.HandleFunc("/registerauth/", RegisterAuth)
 	http.HandleFunc("/register/", Register)
+
 	http.HandleFunc("/search/", searchHandler)
 	http.HandleFunc("/comment/", CommentHandler)
 	http.HandleFunc("/add_comment/", AddCommentHandler)
 	http.HandleFunc("/add_product/", AddProductHandler)
+	http.HandleFunc("/product_detail/", productDetailHandler)
 	http.HandleFunc("/insert_product/", InsertProductHandler)
-
+	http.HandleFunc("/rate_product/", rateProductHandler)
 	http.HandleFunc("/profile/", Profile)
 	http.HandleFunc("/edit_profile/", EditProfile)
 	http.HandleFunc("/update_profile/", UpdateProfile)
-	http.HandleFunc("/product_detail/", productDetailHandler)
-	http.HandleFunc("/rate_product/", rateProductHandler)
+	http.HandleFunc("/data_info/", Data_info)
 
 	http.ListenAndServe("localhost:8000", nil)
 
