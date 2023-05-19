@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Payment
+    </title>
+</head>
+<body>
+    <h1 style="color: green">Payment succesfully completed</h1>
+    <script>
+        window.addEventListener('load', function () {
+        var alertElement = document.getElementById('alertregister')
+        var params = new URLSearchParams(window.location.search)
+        if (params.has('alert')) {
+          var alertType = params.get('alert')
+          var message
+          if (alertType === 'success1') {
+            message = 'You are  sucsesfully!'
+            alertElement.classList.add('alert-success')
+          } else {
+            message = 'An error occurred.'
+            alertElement.classList.add('alert-danger')
+          }
+          alertElement.textContent = message
+          alertElement.style.display = 'block'
+        }
+      })
+      </script>
+</body>
+</html>

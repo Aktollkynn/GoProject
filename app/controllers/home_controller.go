@@ -119,7 +119,7 @@ func RegisterAuth(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Successfully Registered")
 	http.Redirect(w, r, "/login?alert=success1", http.StatusSeeOther)
-	fmt.Fprintf(w, "<script>alert('You are registered sucsesfully!')</script>")
+	fmt.Fprintf(w, "<script>alert('You are  sucsesfully!')</script>")
 
 }
 func ValidateRegistrationForm(fname, lname, email, password string) error {
@@ -429,7 +429,6 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<script>alert(' Your information has been changed successfully!.')</script>")
 }
 
-// --------Product---------------------------
 type Product struct {
 	ID          int
 	Name        string
@@ -437,41 +436,42 @@ type Product struct {
 	Price       float64
 	Rating      float64
 	Comments    []Commenting
+	Quantity    int
 }
 
-func productDetailHandler(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+// func productDetailHandler(w http.ResponseWriter, r *http.Request) {
+// 	id := r.URL.Query().Get("id")
 
-	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+// 	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	defer db.Close()
 
-	var p Product
-	err = db.QueryRow("SELECT id, name, description, price, COALESCE((SELECT AVG(rating) FROM ratings WHERE product_id = $1), 0) as avg_rating FROM products WHERE id = $1", id).Scan(&p.ID, &p.Name, &p.Description, &p.Price, &p.Rating)
-	if err != nil {
-		log.Fatal(err)
-	}
+// 	var p Product
+// 	err = db.QueryRow("SELECT id, name, description, price, COALESCE((SELECT AVG(rating) FROM ratings WHERE product_id = $1), 0) as avg_rating FROM products WHERE id = $1", id).Scan(&p.ID, &p.Name, &p.Description, &p.Price, &p.Rating)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
 
-	rows, err := db.Query("SELECT id, product_id, comment FROM commenting WHERE product_id = $1", id)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
+// 	rows, err := db.Query("SELECT id, product_id, comment FROM commenting WHERE product_id = $1", id)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	defer rows.Close()
 
-	for rows.Next() {
-		var c Commenting
-		err := rows.Scan(&c.ID, &c.ProductID, &c.Comment)
-		if err != nil {
-			log.Fatal(err)
-		}
-		p.Comments = append(p.Comments, c)
-	}
+// 	for rows.Next() {
+// 		var c Commenting
+// 		err := rows.Scan(&c.ID, &c.ProductID, &c.Comment)
+// 		if err != nil {
+// 			log.Fatal(err)
+// 		}
+// 		p.Comments = append(p.Comments, c)
+// 	}
 
-	tmpl := template.Must(template.ParseFiles("templates/product_detail.html"))
-	tmpl.ExecuteTemplate(w, "product_detail", p)
-}
+//		tmpl := template.Must(template.ParseFiles("templates/product_detail.html"))
+//		tmpl.ExecuteTemplate(w, "product_detail", p)
+//	}
 func getUserIDFromSession(r *http.Request) (int, error) {
 	session, err := store.Get(r, "session-name")
 	if err != nil {
@@ -720,6 +720,88 @@ func Welcome(w http.ResponseWriter, r *http.Request) {
 	}
 	t.Execute(w, "welcome")
 }
+func BuyHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	productID, err := strconv.Atoi(r.FormValue("product_id"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	quantity, err := strconv.Atoi(r.FormValue("quantity"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	cardNumber := r.FormValue("card_number")
+	var productName string
+	err = db.QueryRow("SELECT name FROM products WHERE id = $1", productID).Scan(&productName)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Insert the bought product into the "orders" table
+	_, err = db.Exec("INSERT INTO orders (product_id, product_name, quantity, card_number) VALUES ($1, $2, $3, $4)", productID, productName, quantity, cardNumber)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+
+	http.Redirect(w, r, "/success?alert=success1", http.StatusSeeOther)
+	fmt.Fprintf(w, "<script>alert('You are  sucsesfully!')</script>")
+}
+
+func SuccessHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.ParseFiles("templates/success.html"))
+	tmpl.ExecuteTemplate(w, "success", nil)
+
+}
+func productDetailHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+
+	db, err := sql.Open("postgres", "postgresql://postgres:justice@localhost:5432/shop?sslmode=disable")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	var p Product
+	err = db.QueryRow("SELECT id, name, description, price, COALESCE((SELECT AVG(rating) FROM ratings WHERE product_id = $1), 0) as avg_rating FROM products WHERE id = $1", id).Scan(&p.ID, &p.Name, &p.Description, &p.Price, &p.Rating)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	rows, err := db.Query("SELECT id, product_id, comment FROM commenting WHERE product_id = $1", id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var c Commenting
+		err := rows.Scan(&c.ID, &c.ProductID, &c.Comment)
+		if err != nil {
+			log.Fatal(err)
+		}
+		p.Comments = append(p.Comments, c)
+	}
+
+	tmpl := template.Must(template.ParseFiles("templates/product_detail.html"))
+	tmpl.ExecuteTemplate(w, "product_detail", p)
+}
 
 // --------HandlerRequest-------------------
 func HandlerRequest() {
@@ -743,6 +825,8 @@ func HandlerRequest() {
 	http.HandleFunc("/update_profile/", UpdateProfile)
 	http.HandleFunc("/data_info/", Data_info)
 	http.HandleFunc("/welcome/", Welcome)
+	http.HandleFunc("/buy/", BuyHandler)
+	http.HandleFunc("/success/", SuccessHandler)
 
 	http.ListenAndServe("localhost:8000", nil)
 

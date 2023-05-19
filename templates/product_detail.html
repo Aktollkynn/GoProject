@@ -27,7 +27,7 @@
                   <li><a href="/add_product" class="nav-link px-2 text-white">Publishing item</a></li>
                   <li><a href="#" class="nav-link px-2 text-white">Pricing</a></li>
                   <li><a href="/data_info" class="nav-link px-2 text-white">Data</a></li>
-                  <li><a href="#" class="nav-link px-2 text-white">About</a></li>
+                  <li><a href="/welcome" class="nav-link px-2 text-white">About</a></li>
                 </ul>
                 
                 <!-- Logout item -->
@@ -162,6 +162,18 @@
                         <li>Guest: {{.Comment}}</li>
                     {{end}}
                 </ul>
+                <form action="/buy/" method="post">
+                    <input type="hidden" name="product_id" value="{{ .ID }}">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" name="quantity" id="quantity" value="1" min="1">
+                    <br>
+                    <label for="card_number">Card Number:</label>
+                    <input type="text" name="card_number" id="card_number">
+                    <br>
+                    <input type="submit" value="Buy">
+                </form>
+
+
             </div>
         </div>
     </div>
